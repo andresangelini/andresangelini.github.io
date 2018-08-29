@@ -1,5 +1,7 @@
 ## 1. Making the board resizeable
 
+Having already set our objectives in the previous post, we'll jump right away into our first task.
+
 This is by far the most important feature in order to make the new IU responsive, so to begin with, we need to look carefully at the board design to see how each of its parts should behave.
 
 ### Analizying its structure
