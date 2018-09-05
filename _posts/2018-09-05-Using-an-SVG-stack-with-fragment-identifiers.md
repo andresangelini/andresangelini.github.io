@@ -26,7 +26,7 @@ Thanks to our previous efforts to keep everything organized, the only thing we h
 
 Now we just create a `<div>` in our HTML markup and apply a `background-image` in CSS using an URL making sure to also giving it some dimensions to make it visibile.
 
-```CSS
+```css
 div {
   border: 1px solid black;
   position: absolute;
