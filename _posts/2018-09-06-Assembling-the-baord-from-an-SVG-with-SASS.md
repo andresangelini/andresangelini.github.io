@@ -62,6 +62,35 @@ $chain-link-height                    : 45.94px;
 
 If you look at `$side-curve-right` you can see we can make calculation with variables just like with any other programming language.
 
+The values above are the ones both types of boards share in common and are independent from anything else. Now, it's turn to declare the variables that are unique to each board.
+
+```scss
+// Measurements for 'bulletin' type board. DO NOT CHANGE unless you modified the SVG graphics.
+$bulletin-corner-width                : 56px;
+$bulletin-chains-position-top         : 22px;
+
+// Measurements for 'sign' type board. DO NOT CHANGE unless you modified the SVG graphics.
+$sign-corner-width                    : 29.78px;
+$sign-vertical-position-top           : calc(50% - 3px); // Remember: background position in perecentage works differently.
+$sign-chains-position-top             : 22px;
+$sign-chains-position-bottom          : calc(100% + #{$sign-chains-position-top});
+$sign-bottom-chains-position-top      : calc(#{$sign-chains-position-top} / 2);
+```
+
+The values so far are either static or their calculations are pretty unique (meaning, we won't be reusing them). However, the ones we are going to set up next will share some kind of calculation in which a Sass function would come very in handy. Let's take the `x` position of the horizontal sides of the board's frame as an example.
+
+```scss
+$bulletin-side-position-left: calc(#{$bulletin-corner-width} - #{$side-overlap});
+```
+
+Where `$corner-width` is the `width` of the **corner** piece of the board and `$side-overlap` is the amount of **overlap** between the **corners** and the **horizontal sides of the frame**.
+
+But this is basically the same calculation we will have to do for the **sign board** except that the **width** of their **corners** are different.
+
+```scss
+$sign-side-position-left    : calc(#{$sign-corner-width} - #{$side-overlap});
+```
+
 
 
 [SASS]: https://sass-lang.com/
