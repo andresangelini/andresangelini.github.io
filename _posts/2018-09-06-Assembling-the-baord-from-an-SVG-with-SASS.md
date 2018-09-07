@@ -91,7 +91,71 @@ But this is basically the same calculation we will have to do for the **sign boa
 $sign-side-position-left    : calc(#{$sign-corner-width} - #{$side-overlap});
 ```
 
+So instead of repeating ourselves, let's create the following function in the `_functions.scss` partial.
 
+```scss
+@function calc-side-position-left($corner-width) {
+  @return calc(#{$corner-width} - #{$side-overlap});
+}
+```
+Note that I prepended `calc` to the name function to denote that this functions `return`s a CSS `calc()` function. Also note that CSS variables need to be interpolated by placing them inside curly brackets after a hash as in `#{$var}`. Now we can create those same variables using this function instead.
+
+```scss
+$bulletin-side-position-left: calc-side-position-left($bulletin-corner-width);
+$sign-side-position-left    : calc-side-position-left($sign-corner-width);
+```
+
+Rinse and repeat for the rest of the variables. First with the functions.
+
+```scss
+}
+@function calc-side-position-bottom($corner-width) {
+  @return calc((100% - (#{$corner-width} - #{$side-overlap})) - #{$board-depth});
+}
+@function calc-horizontal-width($corner-width) {
+  @return calc(100% - #{strip-calc(calc-side-position-left($corner-width))} * 2);
+}
+@function calc-board-position-top($board-height, $pairs-of-chains) {
+  @return calc((100% - #{$board-height}) / #{$pairs-of-chains});
+}
+@function calc-vertical-height($corner-width, $board-height) {
+  @return calc(#{$board-height} - #{strip-calc(calc-side-position-left($corner-width))} * 2 - #{$board-depth});
+}
+@function calc-vertical-position-top($corner-width) {
+  @return calc(100% - #{strip-calc(calc-side-position-left($corner-width))} - #{$board-depth});
+}
+@function calc-chains-height($board-height, $chains-position-top, $pairs-of-chains) {
+  @return calc(#{strip-calc(calc-board-position-top($board-height, $pairs-of-chains))} + #{$chains-position-top} * 2);
+}
+@function calc-holes-width($corner-width) {
+  @return calc(#{strip-calc(calc-horizontal-width($corner-width))} * 0.8);
+}
+@function calc-holes-shadow-width($corner-width) {
+  @return calc(#{strip-calc(calc-holes-width($corner-width))} + #{$shadow-width} * 2);
+}
+@function calc-holes-position-left($corner-width) {
+  @return calc((100% - (#{strip-calc(calc-horizontal-width($corner-width))} * 0.8)) / 2);
+}
+@function calc-holes-position-right($corner-width) {
+  @return calc(100% - ((100% - (#{strip-calc(calc-horizontal-width($corner-width))} * 0.8)) / 2));
+}
+@function calc-corner-left($corner-width) {
+  @return calc(#{strip-calc(calc-side-position-left($corner-width))} - 5px);
+}
+@function calc-corner-right($corner-width) {
+  @return calc(#{strip-calc(calc-side-position-right($corner-width))} + 5px);
+}
+```
+
+As some variables depend on other variables which themselves depend on other variables things start to get more and more complex. Fortunately, we can nest functions, but we do have to make sure that only the end result of all the nested functions is interpolated. In other words, you don't do this:
+
+```scss
+@function do-something($air) {
+  @retunr calc(#{sing(#{breathe(#{$some-var})})} - #{$air});
+}
+```
+
+it's just not going to work. Insted, you only inteprolate `sing()`.
 
 [SASS]: https://sass-lang.com/
 [installing SASS]: http://sass-lang.com/install
