@@ -15,7 +15,22 @@ After [installing SASS], we create the following files in a `styles` folder.
   _variables.scss
   _index.scss
 ```
+
+And then we set the `@imports` in the `_index.scss` partial.
+
+```scss
+// IMPORTS
+
+@import 'functions';
+@import 'variables';
+@import 'mixins';
+@import 'boards';
+@import 'examples';
+```
+
 SASS will add (or overwrite) the processed CSS output as a file called `index.processed.scss` in the same `styles` folder when you use the `sass --watch` comand (or any other name you like if you build it manually with `sass index.scss [somename].css`.
+
+#### Sass variables
 
 Before we even begin writing any CSS we need to store in variables the values we already know or have already stablished. These could be anything, from dimensions to colors. Since we have just created the SVG file, why don't we starts with that?
 
@@ -77,6 +92,8 @@ $sign-chains-position-bottom          : calc(100% + #{$sign-chains-position-top}
 $sign-bottom-chains-position-top      : calc(#{$sign-chains-position-top} / 2);
 ```
 
+#### Sass functions
+
 The values so far are either static or their calculations are pretty unique (meaning, we won't be reusing them). However, the ones we are going to set up next will share some kind of calculation in which a Sass function would come very in handy. Let's take the `x` position of the horizontal sides of the board's frame as an example.
 
 ```scss
@@ -105,13 +122,56 @@ $bulletin-side-position-left: calc-side-position-left($bulletin-corner-width);
 $sign-side-position-left    : calc-side-position-left($sign-corner-width);
 ```
 
-Rinse and repeat for the rest of the variables. First with the functions.
+Rinse and repeat for the next funcion:
 
 ```scss
-}
 @function calc-side-position-bottom($corner-width) {
   @return calc((100% - (#{$corner-width} - #{$side-overlap})) - #{$board-depth});
 }
+```
+
+Let's now create a function for calculating the width of the frame horizontal sides.
+
+```scss
+@function calc-horizontal-width($corner-width) {
+  @return calc(100% - #{calc-side-position-left(#{$corner-width})} * 2);
+}
+```
+
+However, if we try to use it like this, it's just not going to work because **you can't nest interpolations**. When you use functions inside a `calc()` function, **their arguments should not be interpolated**. So, the right way to write our function then is:
+
+```scss
+@function calc-horizontal-width($corner-width) {
+  @return calc(100% - #{calc-side-position-left($corner-width)} * 2);
+}
+```
+
+But there is yet another problem with this if you care about backward compatibility with older browsers and that is that some of them do not support nested `calc()`s. It would be a good idea then to create a simple function that strips the `calc` leaving just the argument with parethesis included **only if** said argument is actually a `calc()`. Since **functions should do only one thing and do it well**, we will turn this condition into a function in its own which will run this check and return a boolean by comparing the four first characters of the stringified argument to the string `"calc"`.
+
+```scss
+// Checks if a value is actually a calc() function.
+@function is-calc($value) {
+  @return str_slice("#{$value}", 0, 4) == "calc";
+}
+```
+
+With that done, we can now create the function that will strip de `calc` from the name of the `calc()` function by first running the check we have just created. If it is, it will do its job by turning the argument into a `string`, removing the `"calc"` with Sass built-in `str_slice()` function and returning the unquoted result with `unquote()`, which also comes with Sass. Otherwise, the function will simple return its argument.
+
+```scss
+// Strips the "calc" part from a calc() function or returns the argument if it's
+// present.
+@function strip-calc($calc) {
+  @if (is-calc($calc)) {
+    @return unquote(str_slice("#{$calc}", 5, -1));
+  } @else {
+    @return $calc;
+  }
+}
+```
+
+With these two new tools we can go ahead and create the all functions needed for the rest of the variables. The actual formulas should be pretty self explanatory so we won't go deeper into those.
+
+```scss
 @function calc-horizontal-width($corner-width) {
   @return calc(100% - #{strip-calc(calc-side-position-left($corner-width))} * 2);
 }
@@ -147,15 +207,46 @@ Rinse and repeat for the rest of the variables. First with the functions.
 }
 ```
 
-As some variables depend on other variables which themselves depend on other variables things start to get more and more complex. Fortunately, we can nest functions, but we do have to make sure that only the end result of all the nested functions is interpolated. In other words, you don't do this:
+All we have to do now is invoking our functions with the right parameters to declare the rest of the variables in the `_variables.scss` partial grouping them by board type.
 
 ```scss
-@function do-something($air) {
-  @retunr calc(#{sing(#{breathe(#{$some-var})})} - #{$air});
-}
+// Measurements for 'bulletin' type board. DO NOT CHANGE unless you modified the SVG graphics.
+$bulletin-corner-width                : 56px;
+$bulletin-side-position-left          : calc-side-position-left($bulletin-corner-width);
+$bulletin-side-position-right         : calc-side-position-right($bulletin-corner-width);
+$bulletin-side-position-bottom        : calc-side-position-bottom($bulletin-corner-width);
+$bulletin-horizontal-width            : calc-horizontal-width($bulletin-corner-width);
+$bulletin-vertical-height             : calc-vertical-height($bulletin-corner-width, $bulletin-board-height);
+$bulletin-vertical-position-top       : calc-vertical-position-top($bulletin-corner-width);
+$bulletin-chains-position-top         : 22px;
+$bulletin-chains-height               : calc-chains-height($bulletin-board-height, $bulletin-chains-position-top, 1);
+$bulletin-holes-width                 : calc-holes-width($bulletin-corner-width);
+$bulletin-holes-shadow-width          : calc-holes-shadow-width($bulletin-corner-width);
+
+// Measurements for 'sign' type board. DO NOT CHANGE unless you modified the SVG graphics.
+$sign-corner-width                    : 29.78px;
+$sign-side-position-left              : calc-side-position-left($sign-corner-width);
+$sign-side-position-right             : calc-side-position-right($sign-corner-width);
+$sign-side-position-bottom            : calc-side-position-bottom($sign-corner-width);
+$sign-horizontal-width                : calc-horizontal-width($sign-corner-width);
+$sign-board-position-top              : calc-board-position-top($sign-board-height, 2);
+$sign-vertical-height                 : calc-vertical-height($sign-corner-width, $sign-board-height);
+$sign-vertical-position-top           : calc(50% - 3px); // Remember: background position in perecentage works differently.
+$sign-chains-position-top             : 22px;
+$sign-chains-position-bottom          : calc(100% + #{$sign-chains-position-top});
+$sign-top-chains-height               : calc-chains-height($sign-board-height, $sign-chains-position-top, 2);
+$sign-bottom-chains-position-top      : calc(#{$sign-chains-position-top} / 2);
+$sign-bottom-chains-div-position-top  : calc(100% + 22px - #{strip-calc($sign-top-chains-height)});
+$sign-bottom-chains-height            : calc-chains-height($sign-board-height, #{strip-calc($sign-bottom-chains-position-top)}, 2);
+$sign-holes-width                     : calc-holes-width($sign-corner-width);
+$sign-holes-position-left             : calc-holes-position-left($sign-corner-width);
+$sign-holes-position-right            : calc-holes-position-right($sign-corner-width);
+$sign-holes-shadow-width              : calc-holes-shadow-width($sign-corner-width);
 ```
 
-it's just not going to work. Insted, you only inteprolate `sing()`.
+These variables won't change unless something in the SVG is modified for some reason. But if we do find the need to do any modification to our graphic, we will only have to change the functions arguments insntead of having to rewrite each calculation manually.
+
+This should be the perfect moment to take a well deserved rest and let sink in all we have seen and done so far. Next, we will finally create the board.
 
 [SASS]: https://sass-lang.com/
 [installing SASS]: http://sass-lang.com/install
