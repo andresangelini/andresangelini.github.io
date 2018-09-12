@@ -200,7 +200,7 @@ As you can see, we created one `div` for each type of board and then added three
 }
 ```  
 
-If the difference between the **modifiers** and these new **blocks** are still not clear to you, you can look it like this: in the **modifiers** we set all the modifications for the generic types of boards. In other words, all the things that any instance of that type of board will have like the background images URLs, their sizes and positioning. The new **blocks**, namely `bulletin` and `sign`, are used to set very specific properties like the size and psition of each individual instance.
+If the difference between the **modifiers** and these new **blocks** are still not clear to you, you can look it like this: in the **modifiers** we set all the modifications for the generic types of boards. In other words, all the things that any instance of that type of board will have like the background images URLs, their sizes and position. The new **blocks**, namely `bulletin` and `sign`, are used to set very specific properties like the size and psition of each individual instance.
 
 [BEM]: http://getbem.com/
 [Sass Ampersand]: https://css-tricks.com/the-sass-ampersand/
