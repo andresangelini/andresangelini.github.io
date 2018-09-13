@@ -176,7 +176,7 @@ Once we have our **block** and its two **modifiers** defined, it's time to creat
 
 As you can see, we created one `div` for each type of board and then added three classes to them:
 
-`board` is the **block** entity while `board--type-bulletin` and `board--type-sign` are the **modifiers**. The last two classes, `bulletin` and `sign` are also **blocks** and we will use them to define the specific properties of each instance. We will declare their rules in the `_examples` partial.
+`board` is the **block** entity while `board--type-bulletin` and `board--type-sign` are its **modifiers**. The last two classes, `bulletin` and `sign` are just and we instances of that **block** which we apply more specific properties to such as `heigh` and `width`. We will declare their rules in the `_examples` partial.
 
 ```scss
 // EXAMPLES
@@ -200,7 +200,39 @@ As you can see, we created one `div` for each type of board and then added three
 }
 ```  
 
-If the difference between the **modifiers** and these new **blocks** are still not clear to you, you can look it like this: in the **modifiers** we set all the modifications for the generic types of boards. In other words, all the things that any instance of that type of board will have like the background images URLs, their sizes and position. The new **blocks**, namely `bulletin` and `sign`, are used to set very specific properties like the size and psition of each individual instance.
+All there is left to do is creating a `div` for each of the board types in HTML.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+  <!--  Meta  -->
+  <meta charset="UTF-8" />
+  <title>Medieval Board</title>
+
+  <!--  Styles  -->
+  <link rel="stylesheet" href="styles/index.processed.css">
+</head>
+<body>
+
+  <div class='board board--type-bulletin bulletin'></div>
+  <div class='board board--type-sign sign'></div>
+
+</body>
+</html>
+```
+
+You should be getting something similar to this:
+
+<p data-height="265" data-theme-id="0" data-slug-hash="EXjqRv" data-default-tab="result" data-user="andresangelini" data-pen-title="Medieval Board" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/EXjqRv/">Medieval Board</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+Have a look at the project's code [here][Project].
+
+Wow! Isn't beautiful? It's truly amazing how far we have come since we were dreaming about making a responsive medieaval board with SVG stacks. I think we should take a well deserved rest becuase we still have some way to go. While we have achieved quite a lot and our medieval board is actually responsive, we still have to make sure it works properly across browsers and apply the necesarry measures when it doesn't.
+
 
 [BEM]: http://getbem.com/
 [Sass Ampersand]: https://css-tricks.com/the-sass-ampersand/
+[Project]: https://codepen.io/andresangelini/project/editor/Aarxxz
