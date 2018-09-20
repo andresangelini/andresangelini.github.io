@@ -39,10 +39,14 @@ After carefully testing the boards we get the following results:
 
 We finally have a list of specific issues we can address to, but we now need some way to **detect** when a feature is not supported.
 
-#### Broser Detection vs Feature Detection
+#### Browser Detection vs Feature Detection
 
-Was once upon a time when the lack of standard practices in web development made Internet look more like the Wild West than anything else, developers used to use a technique called **browser detection**. As the name implies, it consisted in trying to **detect** what browser the user was using, usually with the help of JavaScript. Not only was this an invasion of user's privacy (and why it was more widely known as [browser sniffing]), but it was also proven to be highly inneffective.
+Was once upon a time when the lack of standard practices in web development made Internet look more like the Wild West than anything else, developers used to use a technique called **browser detection**, also known as [browser sniffing]. As the name implies, it consisted in using JavaScript to **detect** what browser a site was visited from. However, this method could only go so far
+as to detect a browser's vendor but not its version, which meant having to prevent all versions of a browser from using a certain feature just because some of its versions didn't support it. This not only lead many websites to have poorly mantained code but also pushed browsers to implement different measures to pretend to be something else, rendering them completely untrustworthy and nailing in the coffing for this kind of practice.
 
+A more intelligent approach and the one more widely accepted now is to implement some kind of **Feature Detection** by testing if a feature actually works also with the help of JavaScript. This has the advantage of being browser independent which means that you no longer need to update your code with each new browser release. Fortunately for us, we don't need to write our own detections.
+
+#### Your old ways need some Modernizr
 
 [Can I Use]: https://caniuse.com/
 [Cross Browser Testing]: https://crossbrowsertesting.com/
