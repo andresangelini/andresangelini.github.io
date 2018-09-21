@@ -46,8 +46,78 @@ as to detect a browser's vendor but not its version, which meant having to preve
 
 A more intelligent approach and the one more widely accepted now is to implement some kind of **Feature Detection** by testing if a feature actually works also with the help of JavaScript. This has the advantage of being browser independent which means that you no longer need to update your code with each new browser release. Fortunately for us, we don't need to write our own detections.
 
-#### Your old ways need some Modernizr
+#### Let's use something more modern
+
+The standard for implementing **Feature Detection** nowadays is using [Modernizr], which is a collection of JavaScript code or "detects", as they call them, that run on page load to let you cater the specific needs of different users.
+
+One of the best things about [Modernizr] is that instead of having to download and install all in one package, you can [build][Modernizr download] your own package and add more modules as you need them. You will get a `modernizr-custom.min.js` file which you can reference to from your `index.html`. For brevety's sake, I renamed my custom build just `modernizr.js` and placed it inside a new folder called `scripts`.
+
+#### Not everything is perfect
+
+Let's open `boards.scss` and try to solve our first issue:
+
+> IE < 11 don't scale SVGs properly when used as background images.
+
+Looking at the [download][Modernizr download] section of Modernizr you will see there is no **detect** specifically for such a problem. Of course, we could try to write our own but that's definetely time consumig and, in fact, is such a frequent issue that we would soon find ourselves spending more time writing **detects** than getting any actual work done. However, there is something else that we can do, and that is looking at [Can I Use] and see if there is another feature with more or less the same support accross browsers that has a **detect** written for it. Naturally, this technique is far from perfect because we could potentionally be preventing certain users from enjoying features they would otherwise be prefectly able to run if one of the them losses support in the future while the other don't. However, the likelihood of that happening is so miniscule that it's well worth the risk.
+
+Let see then what other feature we can find to use as a **detect** to cover those scenarios where SVGs aren't properly scaled when used as `background-image`s. Of all the features that have a [modernizr] **detect** available, CSS [pointer-events] (for HTML) seem to be the best, so we select **CSS Pointer Events** module and **build** our `modernizer.js` file and finally reference to it from `index.html` like this:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <!--  Meta  -->
+   <meta charset="UTF-8" />
+   <title>Medieval Board</title>
+
+    <!--  Styles  -->
+    <link rel="stylesheet" href="styles/index.processed.css">
+  </head>
+  <body>
+
+  <!-- Scripts -->
+    <script src="scripts/modernizr.js"></script>
+  </body>
+</html>
+```
+
+[Modernizr] will add a `no-csspointerevents` to the `<html>` element, also know as the [root], when it **detects** no support **CSS pointer events**. So all we need to do now is to go back to our `boards.scss` file and add a new rule for all elements with `.no-csspointerevents` and also `.board--type-bulletin` or `.board--type-sign` assigned to them.
+
+```scss
+.board{
+  // Some declarations.
+
+  &--type-bulleting {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+
+    }
+  }
+
+  &--type-sign {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+
+    }
+  }
+}
+```
+
+The `@at-root` directive let us go back to the [root] of the document or `<html>` element while staying inside another rule in `scss`. If we were to write these rules in vanilla CSS, it would look like this:
+
+```css
+.board.board--type-bulletin.no-csspointerevents {}
+.board.board--type-sign.no-csspointerevents {}
+```
 
 [Can I Use]: https://caniuse.com/
 [Cross Browser Testing]: https://crossbrowsertesting.com/
 [browser sniffing]: https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Cross_browser_testing/JavaScript#Using_bad_browser_sniffing_code
+[Modernizr]: https://modernizr.com/
+[Modernizr download]: https://modernizr.com/download
+[pointer-events]: https://caniuse.com/#feat=pointer-events
+[root]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/html
