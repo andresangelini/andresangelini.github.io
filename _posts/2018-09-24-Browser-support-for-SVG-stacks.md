@@ -1,10 +1,10 @@
-### Browser suppor for SVG stacks
+## Browser suppor for SVG stacks
 
 Creating a responsive UI with a single SVG using SVG stacks it's one thing, but
 making it actually work across a plethora of devices and broswers it's a whole
 different beast on its own. Of course, when we say "work" we mean that the site should be at least functinoal, regardless of its appearence. Even if a certain graphic cannot be displayed properly due to an incompatibility, for instance, the user should still be able to use the site without any hindrance. This is something I have intentionally avoided talking about because I thought it would be better to present the problem first, but since it plays a key role in developing a website it should always be part of the designing stage.
 
-#### Progressive Enhancement and Graceful Degradation
+## Progressive Enhancement and Graceful Degradation
 
 There are basically two popular techiniques, or perhaps schools of thought that try to solve the problem of how to make a site functional no matter what the user is using. Both of them recognize the fact that it's not always possible to make a site funciton the same way or even work properly in every scenario and so some consessions must be made. However, their key differece is the starting point for planning out a strategy.
 
@@ -12,15 +12,15 @@ There are basically two popular techiniques, or perhaps schools of thought that 
 
 **Graceful Degradation**, on the other hand, is the technique where you start off designing for the latest and greatest and then you accomadate your design for older, less capable devices or browsers. Many developers actually dislike this way of thinking because they wrongly believe it means adding messages encouraging the user to update or use such and such browser when something doesn't work. In all honestly, they can't be blamed for it because this practice has been widely used and abused for many years. However, that is not what **Graceful Degradation** is about. The key to implement this technique succesfully is to do whatever is necesary to **achieve the same level of funcitonality and appearence wihtout the user even noticing** when a feature is not available for his or her device or browser. When that isn't possible, then you can reduce or eliminate certain visual elements as long as any of the site functionality isn't affected in any way. Adding messages prompting the users to update their browser or device is reserved for those edge cases where they are using something so old or strange that goes beyond our target audience's requierements.
 
-#### What did I choose and why?
+## What did I choose and why?
 
 When designing a website it should go without saying that you should do so with a target audience in mind and take into account their requirements and needs. That's why the **Progressive Enhancement** approach usually fits the bill better and what I usually go for. In this particular case, however, we intend to make the site look and feel just like a video game because it's geared towards companies and professionals in the video game industry who would probably be visiting the site from a high end rig either at the office or at their home, or to a lesser extent, from a modern mobile device. We are not expecting anybody to be using some old version of Explorer on Windows XP and if there was ever such a person, it wouldn't probably belong to our target audience anyway. These few reasons alone make choosing **Graceful Degradation** a no-brainer, so let's plan out how this will work out.
 
-##### Graceful Degradation doesn't mean Excluding
+## Graceful Degradation doesn't mean Excluding
 
 Following this second approach to web design, we will start off with our Medieval Board made with a single SVG stack using all the latest features present in moder browsers and then work out how keep it visually and functionally consisten across browsers and devices. Our main goal here is to try our best not to let the user feel excluded or treated as a second class citizen.
 
-#### The best tools for the job
+## The best tools for the job
 
 There two crucial tools that we will be using to achive true ubiquitous exprerience. The first one is the sitr [Can I Use] which is basically an up to date table of support for HTML, CSS and JavaScript features across a wide range of browser vendor, versions and devices. The second is called [Cross Browser Testing] and although you need to have an account, you can access to their **Live Testing**, **Sreenshot** testing and other amazing tools with a **free trial**, which is more than enough for our needs.
 
@@ -39,20 +39,20 @@ After carefully testing the boards we get the following results:
 
 We finally have a list of specific issues we can address to, but we now need some way to **detect** when a feature is not supported.
 
-#### Browser Detection vs Feature Detection
+## Browser Detection vs Feature Detection
 
 Was once upon a time when the lack of standard practices in web development made Internet look more like the Wild West than anything else, developers used to use a technique called **browser detection**, also known as [browser sniffing]. As the name implies, it consisted in using JavaScript to **detect** what browser a site was visited from. However, this method could only go so far
 as to detect a browser's vendor but not its version, which meant having to prevent all versions of a browser from using a certain feature just because some of its versions didn't support it. This not only lead many websites to have poorly mantained code but also pushed browsers to implement different measures to pretend to be something else, rendering them completely untrustworthy and nailing in the coffing for this kind of practice.
 
 A more intelligent approach and the one more widely accepted now is to implement some kind of **Feature Detection** by testing if a feature actually works also with the help of JavaScript. This has the advantage of being browser independent which means that you no longer need to update your code with each new browser release. Fortunately for us, we don't need to write our own detections.
 
-#### Let's use something more modern
+## Let's use something more modern
 
 The standard for implementing **Feature Detection** nowadays is using [Modernizr], which is a collection of JavaScript code or "detects", as they call them, that run on page load to let you cater the specific needs of different users.
 
 One of the best things about [Modernizr] is that instead of having to download and install all in one package, you can [build][Modernizr download] your own package and add more modules as you need them. You will get a `modernizr-custom.min.js` file which you can reference to from your `index.html`. For brevety's sake, I renamed my custom build just `modernizr.js` and placed it inside a new folder called `scripts`.
 
-#### Not everything is perfect
+## Not everything is perfect
 
 Let's open `boards.scss` and try to solve our first issue:
 
