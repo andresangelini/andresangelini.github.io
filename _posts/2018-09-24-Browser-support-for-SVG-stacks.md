@@ -110,8 +110,8 @@ Let see then what other feature we can find to use as a **detect** to cover thos
 The `@at-root` directive let us go back to the [root] of the document or the `<html>` element while staying inside another rule in `scss`. If we were to write these rules in vanilla CSS, it would look like this:
 
 ```css
-.board.board--type-bulletin.no-csspointerevents {}
-.board.board--type-sign.no-csspointerevents {}
+.no-csspointerevents .board--type-bulletin {}
+.no-csspointerevents .board--type-sign {}
 ```
 
 And our HTML markup:
