@@ -1,0 +1,287 @@
+In the last post we created a new CSS rule for those scenearios where SVGs don't scale properly when used as `background-image` and the only browser affected by this particular issue was Internet Explorer up to version 10. Sadly, Modernizr doesn't have any module for detecting support for SVG as `background-image`, though. However, by carefully checking out [Can I Use] we discovered that Internet Explorer 10 and older do not support CSS [pointer-events] either, which does have a module, so we used that instead.
+
+```scss
+.board{
+  // Some declarations.
+
+  &--type-bulleting {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+
+    }
+  }
+
+  &--type-sign {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+
+    }
+  }
+}
+```
+
+## A workaround for missing Modernizr modules
+
+The root of the problem seems to be that those versions of IE don't like using SVG in multiple `background-image`s. A way around that then is using multiple `div`s each with a single `background-image` pointing to its respective SVG fragment instead.
+
+First we make sure they all have their **position** as **absolute**.
+
+```scss
+.board{
+  // Some declarations.
+
+  &--type-bulleting {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div {
+        position: absolute;
+      }
+    }
+  }
+
+  &--type-sign {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div {
+        position: absolute;
+      }
+    }
+  }
+}
+```
+
+Again, the `@at-root` Sass directive let us specify that we want all child `div`s of `.board--type-bulletin` and `.board--type-sign` to have `position: absolute` only when `.no-csspointerevents` is added to `html` element writing this rule inside our rules for `.board--type-bulletin` and `.board--type-sign`.
+
+If at this point we were to write our rules in plain CSS we would soon find ourselver doing some ardous and repetetive task. Let's try with the `planks` first to see how this would be like:
+
+```scss
+.board{
+  // Some declarations.
+
+  &--type-bulleting {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div {
+        position: absolute;
+      }
+
+      /* Instead of using a single div with multiple background images, use multiple divs each with their own background image pointing to its respective layer in the SVG stack. */
+      & div:nth-child(1) {
+        background-image: url("#{$path-to-board}#l-bulletin-planks");
+        bottom: 0;
+        height: $bulletin-board-height;
+        width: 100%;
+      }
+    }
+  }
+
+  &--type-sign {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div {
+        position: absolute;
+      }
+
+      /* Instead of using a single div with multiple background images, use multiple divs each with their own background image pointing to its respective layer in the SVG stack. */
+      & div:nth-child(1) {
+        background-image: url("#{$path-to-board}#l-sign-planks");
+        bottom: $sign-board-position-top;
+        height: $sign-board-height;
+        width: 100%;
+      }
+    }
+  }
+}
+```
+
+## Sass Mixins
+
+Ugh! What a mess that is. I hope you can see how much repetition we can avoid here. Both `.board-type-bulletin` and `.board--type-sign` have declarations for the same properties but with different values except the `with: 100%`, so let's throw some Sass [mixin] magic to the mix to fix this issue without repeating ourselves.
+
+```scss
+@mixin planks($path, $board-height, $board-position-top) {
+  background-image: url($path);
+  bottom: $board-position-top;
+  height: $board-height;
+  width: 100%;
+}
+```
+**Mixins** are basically **funcions** that can take **arguments** but can only return **declarations**. In this case, we declare a mixin by using the `@mixin` directive, name it as `planks` and stablish three parameter for it between parenthesis:
+
+- `$path`: the URL path of the SVG fragment to pass to the `background-image`.
+- `board-height`: the `height` of the board.
+- `board-position-top`: the `top` position of the board.
+
+By using our newly created **mixin** our previous rules becomes much more readable by turning four lines of code into just one.
+
+```scss
+.board{
+  // Some declarations.
+
+  &--type-bulleting {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div {
+        position: absolute;
+      }
+
+      /* Instead of using a single div with multiple background images, use multiple divs each with their own background image pointing to its respective layer in the SVG stack. */
+      & div:nth-child(1) {@include planks("#{$path-to-board}#l-bulletin-planks", $bulletin-board-height, 0);}
+    }
+  }
+
+  &--type-sign {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div:nth-child(1) {@include planks("#{$path-to-board}#l-sign-planks", $sign-board-height, $sign-board-position-top);}
+    }
+  }
+}
+```
+
+The same can be done for each of the `div`s by creating more **mixins** in the `_mixins.scss` partial.
+
+```scss
+// A mixin for centering absolute positioned elements.
+@mixin center-horizontally($width) {
+  margin-left: calc(#{$width} / (-2));
+  margin-left: calc(#{strip-calc($width)} / (-2));    // For browsers that don't support nested calc() functions.
+  left: 50%;
+  width: #{$width};
+}
+
+@mixin chains($path, $holes-width, $chains-height, $chains-position-top) {
+  @include center-horizontally($holes-width);
+  background-image: url($path);
+  height: $chains-height;
+  top: #{-$chains-position-top};
+}
+
+@mixin plaque($path) {
+  @include center-horizontally($bulletin-plaque-width);
+  background-image: url($path);
+  bottom: 0;
+  height: $bulletin-board-height;
+}
+
+@mixin corners($path, $board-height, $board-position-top) {
+  background-image: url($path);
+  bottom: $board-position-top;
+  height: $board-height;
+  width: 100%;
+}
+
+@mixin horizontal-sides($path, $horizontal-width, $board-height, $board-position-top) {
+  @include center-horizontally($horizontal-width);
+  background-image: url($path);
+  bottom: $board-position-top;
+  height: $board-height;
+}
+
+@mixin vertical-sides($path, $vertical-height, $board-height, $side-position-left, $pairs-of-chains) {
+  background-image: url($path);
+  height: $vertical-height;
+  top: calc((100% - #{$board-height}) / #{$pairs-of-chains} + #{strip-calc(#{$side-position-left})});
+  width: 100%;
+}
+
+@mixin holes($path, $holes-width, $board-height, $board-position-top) {
+  @include center-horizontally($holes-width);
+  background-image: url($path);
+  bottom: $board-position-top;
+  height: $board-height;
+}
+
+@mixin planks($path, $board-height, $board-position-top) {
+  background-image: url($path);
+  bottom: $board-position-top;
+  height: $board-height;
+  width: 100%;
+}
+```
+
+**Mixins** can be **nested** inside other **mixins** as you can see above, which comes as a really nice feature to create more generic **mixins** such as our `center-horizontally` one. Will be using this one quite often each time we want to center an absolutely positioned element.
+
+Thanks to those **mixins** we can dedicate only one line for each `div`.
+
+```scss
+.board{
+  // Some declarations.
+
+  &--type-bulleting {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      & div {
+        position: absolute;
+      }
+
+      /* Instead of using a single div with multiple background images, use multiple divs each with their own background image pointing to its respective layer in the SVG stack. */
+      & div:nth-child(13) {@include plaque("#{$path-to-board}#l-plaque");}
+      & div:nth-child(12) {@include chains("#{$path-to-board}#l-top-chains", $bulletin-holes-width, $bulletin-chains-height, $bulletin-chains-position-top);}
+      & div:nth-child(11) {@include corners("#{$path-to-board}#l-bulletin-corners", $bulletin-board-height, 0);}
+      & div:nth-child(10) {@include horizontal-sides("#{$path-to-board}#l-bulletin-horizontal-sides", $bulletin-horizontal-width, $bulletin-board-height, 0);}
+      & div:nth-child(9) {@include vertical-sides("#{$path-to-board}#l-vertical-sides", $bulletin-vertical-height, $bulletin-board-height, $bulletin-side-position-left, 1);}
+      & div:nth-child(8) {@include holes("#{$path-to-board}#l-bulletin-holes", $bulletin-holes-width, $bulletin-board-height, 0);}
+      & div:nth-child(7) {@include horizontal-sides("#{$path-to-board}#l-horizontal-sides-depth", $bulletin-horizontal-width, $bulletin-board-height, 0);}
+      & div:nth-child(6) {@include corners("#{$path-to-board}#l-bulletin-corners-depth", $bulletin-board-height, 0);}
+      & div:nth-child(5) {@include horizontal-sides("#{$path-to-board}#l-horizontal-sides-shadow", $bulletin-horizontal-width, $bulletin-board-height, 0);}
+      & div:nth-child(4) {@include vertical-sides("#{$path-to-board}#l-vertical-sides-shadow", $bulletin-vertical-height, $bulletin-board-height, $bulletin-side-position-left, 1);}
+      & div:nth-child(3) {@include corners("#{$path-to-board}#l-bulletin-corners-shadow", $bulletin-board-height, 0);}
+      & div:nth-child(2) {@include holes("#{$path-to-board}#l-bulletin-holes-shadow", $bulletin-holes-shadow-width, $bulletin-board-height, 0);}
+      & div:nth-child(1) {@include planks("#{$path-to-board}#l-bulletin-planks", $bulletin-board-height, 0);}
+    }
+  }
+
+  &--type-sign {
+    // More declarations.
+
+    /* IE < 11 don't scale SVGs properly when used as background images. Since IE < 11 don't support CSS pointer-events, use it to detect these versions. */
+    @at-root .no-csspointerevents & {
+      /* Instead of using a single div with multiple background images, use multiple divs each with their own background image pointing to its respective layer in the SVG stack. */
+      & div:nth-child(13) {@include chains("#{$path-to-board}#l-top-chains", $sign-holes-width, #{calc-chains-height($sign-board-height, $sign-chains-position-top, 2)}, $sign-chains-position-top);}
+      & div:nth-child(12) {
+        @include chains("#{$path-to-board}#l-bottom-chains", $sign-holes-width, #{calc-chains-height($sign-board-height, $sign-chains-position-top, 2)}, $sign-chains-position-top);
+        top: $sign-bottom-chains-div-position-top; // Overwrite function's heihgt.
+      }
+      & div:nth-child(11) {@include corners("#{$path-to-board}#l-sign-corners", $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(10) {@include horizontal-sides("#{$path-to-board}#l-sign-horizontal-sides", $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(9) {@include vertical-sides("#{$path-to-board}#l-vertical-sides", $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
+      & div:nth-child(8) {@include holes("#{$path-to-board}#l-sign-holes", $sign-holes-width, $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(7) {@include horizontal-sides("#{$path-to-board}#l-horizontal-sides-depth", $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(6) {@include corners("#{$path-to-board}#l-sign-corners-depth", $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(5) {@include horizontal-sides("#{$path-to-board}#l-horizontal-sides-shadow", $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(4) {@include vertical-sides("#{$path-to-board}#l-vertical-sides-shadow", $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
+      & div:nth-child(3) {@include corners("#{$path-to-board}#l-sign-corners-shadow", $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(2) {@include holes("#{$path-to-board}#l-sign-holes-shadow", $sign-holes-width, $sign-board-height, $sign-board-position-top);}
+      & div:nth-child(1) {@include planks("#{$path-to-board}#l-sign-planks", $sign-board-height, $sign-board-position-top);}
+    }
+  }
+}
+```
+
+Done! Now the board should switch from using only one `div` with multiple `background-image`s to multiple `div`s with a single `background-image` pointing to a specefic SVG fragment whenever SVGs used in `multiple-image`s are not supported by the browser.
+
+Let's take a breather and leave solving the rest of the issues for the next post where will introduce a more advanced technique for feature detecttion.
+
+
+[Can I Use]: https://caniuse.com/
+[pointer-events]: https://caniuse.com/#feat=pointer-events
+[mixin]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#defining_a_mixin
