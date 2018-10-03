@@ -1,4 +1,4 @@
-In the last post we created a new CSS rule for those scenearios where SVGs don't scale properly when used as `background-image` and the only browser affected by this particular issue was Internet Explorer up to version 10. Sadly, Modernizr doesn't have any module for detecting support for SVG as `background-image`, though. However, by carefully checking out [Can I Use] we discovered that Internet Explorer 10 and older do not support CSS [pointer-events] either, which does have a module, so we used that instead.
+In the last post we created a new CSS rule for those scenarios where SVGs don't scale properly when used as `background-image` and the only browser affected by this particular issue was Internet Explorer up to version 10. Sadly, Modernizr doesn't have any module for detecting support for SVG as `background-image`, though. However, by carefully checking out [Can I Use] we discovered that Internet Explorer 10 and older do not support CSS [pointer-events] either, which does have a module, so we used that instead.
 
 ```scss
 .board{
@@ -26,9 +26,37 @@ In the last post we created a new CSS rule for those scenearios where SVGs don't
 
 ## A workaround for missing Modernizr modules
 
-The root of the problem seems to be that those versions of IE don't like using SVG in multiple `background-image`s. A way around that then is using multiple `div`s each with a single `background-image` pointing to its respective SVG fragment instead.
+The root of the problem seems to be that those versions of IE don't like using SVG in multiple `background-image`s. A way around that, then, is using some JavaScript magic to split the board into many `div`s, each with a single `background-image` pointing to its respective SVG fragment instead.
 
-First we make sure they all have their **position** as **absolute**.
+Let's start off by creating a simple JavaScript conditional to make the change if CSS [pointer-events] is supported.
+
+```javascript
+if (Modernizr.csspointerevents) {
+  // supported
+  appendElementsToBoard('div');
+} else {
+  // not-supported
+
+}
+
+function appendElementsToBoard(elem) {
+  // IE 8 raises an error with document.getElementsByClassName().
+  try {
+    // Insert multiple elements in every board div.
+    for (var i = 0; i < document.getElementsByClassName('board').length; i++) {
+      for (var k = 1; k < 14; k++) {
+       document.getElementsByClassName('board')[i].appendChild(document.createElement(elem));   
+      }
+    }
+  } catch(err) {
+    // do nothing.
+  }
+}
+```
+
+Instead of doing all that stuff right inside the conditional, it's wise to turn it into a function, which in this case I called `appendElementsToBoard`. The function in itslelf isn't anything special and should be quite self-explanatory. The only worth thing mentioning, though, is than since the `div`s will need to be absolutely positioned to have their own sizes and positions, we will have to insert them inside the original `div` instead of replacing it.
+
+Now let's go back to the `_board.scss` partial and make sure they all have their **position** as **absolute**.
 
 ```scss
 .board{
@@ -58,7 +86,7 @@ First we make sure they all have their **position** as **absolute**.
 }
 ```
 
-Again, the `@at-root` Sass directive let us specify that we want all child `div`s of `.board--type-bulletin` and `.board--type-sign` to have `position: absolute` only when `.no-csspointerevents` is added to `html` element writing this rule inside our rules for `.board--type-bulletin` and `.board--type-sign`.
+Again, the `@at-root` Sass directive let us specify that we want all child `div`s of `.board--type-bulletin` and `.board--type-sign` to have `position: absolute` only when `.no-csspointerevents` is added to the `html` element by writing this rule inside the ones for `.board--type-bulletin` and `.board--type-sign`.
 
 If at this point we were to write our rules in plain CSS we would soon find ourselver doing some ardous and repetetive task. Let's try with the `planks` first to see how this would be like:
 
