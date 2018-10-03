@@ -28,7 +28,7 @@ In the last post we created a new CSS rule for those scenarios where SVGs don't 
 
 The root of the problem seems to be that those versions of IE don't like using SVG in multiple `background-image`s. A way around that, then, is using some JavaScript magic to split the board into many `div`s, each with a single `background-image` pointing to its respective SVG fragment instead.
 
-Let's start off by creating a simple JavaScript conditional to make the change if CSS [pointer-events] is supported.
+Let's start off by creating a simple JavaScript conditional to make the change if CSS [pointer-events] are supported. Will do this in a new file called `index.js` living inside the `scripts` we created earlier right alongside `modernizr.js`.
 
 ```javascript
 if (Modernizr.csspointerevents) {
