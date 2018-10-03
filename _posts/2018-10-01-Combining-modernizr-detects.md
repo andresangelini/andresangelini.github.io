@@ -172,7 +172,7 @@ Once more we add the following rule to each of the board types.
 }
 ```
 
-Not being able to use **SVG patters** means that we will have to replace every **SVG Fragment** using them with a `div` with multiple `background-image`s. However, doing such a thing would result in having to write a massive amount of declarations just to have each image slightly modified. Of course, thanks to the power of [Sass], we don't have to, and in fact, it will give us the perfect opportunity to try some other cool stuff we can do with it. Be sure not to miss it in the next and final episode of our journey to building an awesome **Responsive Medieval Board with SVG Stacks**.
+Not being able to use **SVG patters** means that we will have to replace every **SVG Fragment** with an actual **SVG file**. However, doing such a thing would result in having to write a massive amount of declarations just to have each image slightly modified. Of course, thanks to the power of [Sass], we don't have to, and in fact, it will give us the perfect opportunity to try some other cool stuff we can do with it. Be sure not to miss it in the next and final episode of our journey to building an awesome **Responsive Medieval Board with SVG Stacks**.
 
 
 [download]: https://modernizr.com/download
