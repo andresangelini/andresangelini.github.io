@@ -12,18 +12,29 @@ Let's start with what seems easier; the **background color**.
 
 ## Clipping in CSS
 
-Safari 11 might not support SVG patterns with alpha but it does have partial support for CSS `clip-path` if you use it along with CSS [shapes]. These last ones are a relatively new feature that allow us to draw simple figures in CSS. You have your basic shapes such as `line`, `rectangle` and `circle` but you can also build more comple figures using `polygon`, which is what we are going to use to reproduce our clipped SVG pattern.
+Safari 11 might not support SVG patterns with alpha but it does have partial support for CSS `clip-path` if you use it along with CSS [shapes]. These last ones are a relatively new feature that allow us to draw simple figures in CSS. You have your basic shapes such as `line`, `rectangle` and `circle`. To create a figure using both you only need to set a `clip-path` **property** with any of these shapes as a **value** to a `div`. For example:
+
+```css
+clip-path: circle(50px);
+```
+
+What we are actually doing, in fact, is creating a regular squared `div` and clipping it with the shape we want it to have, as shown below.
+
+<p data-height="265" data-theme-id="0" data-slug-hash="PypmBO" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Simple CSS shape" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/PypmBO/">Simple CSS shape</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+But you can also build more complex figures using `polygon`, which is what we are going to use to reproduce our clipped SVG pattern.
 
 <p data-height="265" data-theme-id="0" data-slug-hash="vpYbPP" data-default-tab="result" data-user="andresangelini" data-pen-title="Clipping SVG elements with complex shapes" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/vpYbPP/">Clipping SVG elements with complex shapes</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-To draw a shape using `polygon`, we set it as the **value** of a **property** in a **declaration** and set a pair of coordinates for each point or vertex **clockwise** separated by a **comma**.
+To draw a shape using `polygon`, we once again set it as the **value** of the `clip-path` **property**. Each point or vertex is written as a pair of coordinates separated by a **comma** starting from the **top left corner** and going **clockwise**.
 
 ```css
 cip-path: polygon(x-1 y-1, x-2 y-2, x-3 y-3, ...);
 ```
 
-
+All the usual units are allowed which is exactly what we need in order for this clip-path to be flexible.
 
 
 [`index.processed.css`]: https://codepen.io/andresangelini/project/editor/Aarxxz
