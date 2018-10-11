@@ -98,25 +98,114 @@ Check out the Pen bellow and play around with `$corner-width` argument in the `p
 <p data-height="315" data-theme-id="dark" data-slug-hash="NOjXbW" data-default-tab="css,result" data-user="andresangelini" data-pen-title="CSS clip-path with polygon()" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/NOjXbW/">CSS clip-path with polygon()</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-## Making patterns with `background-image`
+## Making patterns in plain CSS
 
-A very basic way to simulate a pattern in plain CSS would be to do something along these lines:
+A very basic way to simulate the grooves pattern of the planks in vanilla CSS, for example, would be to do something along these lines:
 
 ```css
-background-images: url("https://path-to-image_01"),
-                   url("https://path-to-image_02"),
-                   url("https://path-to-image_03"),
-                   //...
-                   url("https://path-to-image_XX");
+& div:nth-child(1) {
+  background-image: url("grooves.svg"),
+                    url("grooves.svg"),
+                    url("grooves.svg"),
+                    //...
+                    url("grooves.svg");
+  background-position: 0,
+                       527px 568px,
+                       1054px 1136px,
+                       //...
+                       1527px 5680px;
+  background-size: 100%;
+}
 ```
 
+The intention here is to create a tile pattern out of the grooves so that there are a total of 10 tiles next to each other in both `x` and `y` axis. But of course, we already know this could be a lot better by doing it the Sass way.
 
+## Multiple `background-image`s with Sass
 
+First off, let's make a simple function for creating multiple `background-image`s. It should have two **parameters**; the path **URL** to the image and the **amount** of copies we want. A [`@for`][for] loop will do the trick here.
 
+```scss
+@function background-images($path, $amount) {
+  $result: url($path);
 
+  @for $i from 1 to $amount {
+    $result: $result, url($path);
+  }
 
+  @return $result;
+}
+```
 
+However, whay would happen if the user of this function enters `0`, `-2`, `32px` or even `sfd` whether by accident or even intentionally? We need to apply some kind of **error handling** so as to let the user know what's wrong. To begin with, the `$amount` parameter should default to `1` because that's the minimum amount of images one could possible use. Just like in so many other languages, Sass let's us specify which **parameter** goes with which **value** regardless of any order by declaring it as:
+
+```scss
+@function shake($fruit: "banana", $drink: "milk") {
+  // Make the ultimate milkshake!
+}
+```
+
+If the user of this function doesn't change `$fruit` or `$drink` when invoking it, these parameters will use their default values of `"banana"` and `"milk"` respectively. So, in our case it will be `$amount: 1`.
+
+Now, we can check if the user set `amount` to a value other than a number by using Sass built-in function [`unitless()`][unitless] and execute our [`@for`][for] loop on `true` or throw and [`@error`][error] on `false`. The erro message coud be something like `"background-images: $amount is invalid, was 32px, expected integer"`. But as you know by now, we should make things as generic and reusable as possible becuase we will probably handling more errors in the future and don't want be doing the same thing over and over again. Let's make a new and even more generic function that takes the **function's name**, the **argument** causing the issue, its current **value** and the **expected ones**.
+
+```scss
+@function invalid-arg($function-name, $arg-name, $arg, $expected-args) {
+  @return "#{$function-name}: #{$arg-name} is invalid, was #{$arg}, " +
+          "expected #{$expected-args}.";
+};
+```
+
+Where `#{$variable}` is the other method Sass has to interpolate a a variable with a string by inserting it direclty innto it.
+
+With that out of the way, now we can complete our `background-images` function.
+
+```scss
+@function background-images($path, $amount: 1) {
+  $result: url($path);
+
+  @if (unitless($amount)) {
+    @for $i from 1 to $amount {
+      $result: $result, url($path);
+    }
+  } @else {
+    @error invalid-arg("background-images", "$amount", $amount, "integer");
+  }
+
+  @return $result;
+}
+```
+From now on, whenever we need to set multiple `background-image`s using the same image, we will only have to do:
+
+```scss
+background-image: background-images(../path/to/cats.png, 20);
+```
+And even:
+
+```scss
+.pets {
+  background-image: background-images("../path/to/cats.png", 20),
+                    background-images("../path/to/dogs.png", 50),
+                    background-images("../path/to/birds.png"),
+                    background-images("../path/to/rabbits.png", 2);
+}
+```
+
+We are not working with pets, but with **grooves** and **shades**, though. By trial and error I figured out that I needed **80** tiles of **shades** and **100** of **grooves** just to make sure the pattern won't brake in large screens.
+
+```scss
+& div:nth-child(1) {
+  background-image: background-images($path-to-shades, 80),
+                    background-images($path-to-grooves, 100);
+}
+```
+
+It's important to remember that, contrary to what one would normally expect, the first `background-image` is the one closest to the user and the ones than come after it are placed behind.
+
+## Multiple `background-position`s with Sass
 
 [`index.processed.css`]: https://codepen.io/andresangelini/project/editor/Aarxxz
 [shapes]: https://css-tricks.com/the-shapes-of-css/
 [if]: https://sass-lang.com/documentation/file.SASS_REFERENCE.html#if
+[for]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#for
+[unitless]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
+[error]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#error
