@@ -107,18 +107,20 @@ A very basic way to simulate the grooves pattern of the planks in vanilla CSS, f
   background-image: url("grooves.svg"),
                     url("grooves.svg"),
                     url("grooves.svg"),
-                    //...
+                    url("grooves.svg"),
+                    url("grooves.svg"),
                     url("grooves.svg");
   background-position: 0,
-                       527px 568px,
-                       1054px 1136px,
-                       //...
-                       1527px 5680px;
+                       568px 0,
+                       1136px 0,
+                       0 568px,
+                       568px 568px,
+                       1136px 568px;
   background-size: 100%;
 }
 ```
 
-The intention here is to create a tile pattern out of the grooves so that there are a total of 10 tiles next to each other in both `x` and `y` axis. But of course, we already know this could be a lot better by doing it the Sass way.
+The intention in this example is to create a tile pattern out of the grooves so that there are a total of 6 tiles next to each other in both `x` and `y` axis. But of course, we already know this could be a lot better by doing it the Sass way.
 
 ## Multiple `background-image`s with Sass
 
@@ -202,6 +204,13 @@ We are not working with pets, but with **grooves** and **shades**, though. By tr
 It's important to remember that, contrary to what one would normally expect, the first `background-image` is the one closest to the user and the ones than come after it are placed behind.
 
 ## Multiple `background-position`s with Sass
+
+The `background-position` property let us move a `background-image` in the `x` and `y` directions. In our earlier example we set the three first images next to each other along the `x` axis and the three last ones in a second row below.
+
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tile patter with background-position" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Tile patter with background-position</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+In other words, the positions of the images can be described by the general ecuation of a straight line `a*x + b` which we can use to loop through each `background-position` in a single axis where `x` would be the loop **iteration** or `i`, `a` an arbitrary **offset** we might want to use and `b` the original **position** we want to start from.
 
 [`index.processed.css`]: https://codepen.io/andresangelini/project/editor/Aarxxz
 [shapes]: https://css-tricks.com/the-shapes-of-css/
