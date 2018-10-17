@@ -207,10 +207,50 @@ It's important to remember that, contrary to what one would normally expect, the
 
 The `background-position` property let us move a `background-image` in the `x` and `y` directions. In our earlier example we set the three first images next to each other along the `x` axis and the three last ones in a second row below.
 
-<p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tile patter with background-position" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Tile patter with background-position</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Linear pattern for background-position" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Linear pattern for background-position</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-In other words, the positions of the images can be described by the general ecuation of a straight line `a*x + b` which we can use to loop through each `background-position` in a single axis where `x` would be the loop **iteration** or `i`, `a` an arbitrary **offset** we might want to use and `b` the original **position** we want to start from.
+In other words, the positions of the images can be described by the general ecuation of a straight line `$dx * $i + $x` for `x` axis and `$dy * $i + $y` for `y`, where:
+
+- `$dx` and `$dy` are the space between each `backgroun-image` measured from their top left corner in the `x` and `y` axis respectively.
+- `$i` is the `@for` loop **iterator** used to increase the distance from the container's top left corner.
+- `$x` and `$y` are the coordinates of the first `background-image` and the whole pattern in general.
+- `$pos` is the number of background-positions to be set.
+
+A new function will use these five parameters to loop `$pos` number of times concatenating each time the result of those ecuations to the previous ones.
+
+```scss
+@function linear-pattern($x: 0px, $y: 0px, $dx: 0px, $dy: 0px, $pos: 1) {
+  $result: null;
+
+  @for $i from 0 to $pos {
+    $result: $result, calc((#{$dx} * #{$i}) + #{$x}) + " " + calc((#{$dy} * #{$i}) + #{$y});
+  }
+
+  @return $result;
+}
+```
+
+Using this function is as easy as typing:
+
+```
+background-position: linear-pattern($x: 20px, $y: 20px, $dx: 600px, $dy: 20px, $pos: 3);
+```
+
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Linear pattern for background-position with Sass" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Linear pattern for background-position with Sass</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
 
 [`index.processed.css`]: https://codepen.io/andresangelini/project/editor/Aarxxz
 [shapes]: https://css-tricks.com/the-shapes-of-css/
