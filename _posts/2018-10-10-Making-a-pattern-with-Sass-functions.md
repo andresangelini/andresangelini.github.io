@@ -210,34 +210,35 @@ The `background-position` property let us move a `background-image` in the `x` a
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Linear pattern for background-position" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Linear pattern for background-position</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-In other words, the positions of the images can be described by the general ecuation of a straight line `$dx * $i + $x` for `x` axis and `$dy * $i + $y` for `y`, where:
+In other words, the positions of the images can be described by the general ecuation of a straight line `$img-dx * $i + $line-x` for `x` axis and `$img-dy * $i + $line-y` for `y`, where:
 
-- `$dx` and `$dy` are the space between each `backgroun-image` measured from their top left corner in the `x` and `y` axis respectively.
-- `$i` is the `@for` loop **iterator** used to increase the distance from the container's top left corner.
-- `$x` and `$y` are the coordinates of the first `background-image` and the whole pattern in general.
-- `$pos` is the number of background-positions to be set.
+- `$img-dx` and `$img-dy`are the horizontal and vertical distances between each `background-image`.
+- `$i` is the `@for` loop **iterator** used to increase the distance of the **line** from the container's top left corner.
+- `$line-x` and `$line-y` are the coordinates of the **line** of `background-image`'s top left corner.
 
-A new function will use these five parameters to loop `$pos` number of times concatenating each time the result of those ecuations to the previous ones.
+With this, we will create a new function called `bkg-pos-line` which will loop `$imgs` number of times to concatenate each new `$result` to the previous one as `$i` increases and returns multiple `background-postion`'s in a **line** pattern.
 
 ```scss
-@function linear-pattern($x: 0px, $y: 0px, $dx: 0px, $dy: 0px, $pos: 1) {
+@function bkg-pos-line($line-x: 0px, $line-y: 0px, $img-dx: 0px, $img-dy: 0px, $imgs: 1) {
   $result: null;
 
-  @for $i from 0 to $pos {
-    $result: $result, calc((#{$dx} * #{$i}) + #{$x}) + " " + calc((#{$dy} * #{$i}) + #{$y});
+  @for $i from 0 to $imgs {
+    $result: $result, calc((#{$img-dx} * #{$i}) + #{$line-x}) +
+                      " " +
+                      calc((#{$img-dy} * #{$i}) + #{$line-y});
   }
 
   @return $result;
 }
 ```
 
-Using this function is as easy as typing:
+Now we must the same logic to obtain a **grid** using multiple **lines** of images instead of just images. This time, the ecuations change to `$line-dx * $i + $grid-x` and `$line-dy * $i + $grid-y` for each `$line-x` and `$line-y` where:
 
-```
-background-position: linear-pattern($x: 20px, $y: 20px, $dx: 600px, $dy: 20px, $pos: 3);
-```
+- `$line-dx` and `$line-dy` are the horizontal and vertical distances between each line patter.
+- `$i` is the `@for` loop **iterator** used to increase the distance of the **grid** from the container's top left corner.
+- `$grid-x` and `$grid-y` are the coordinates of the grid pattern's top left corner.
 
-<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Linear pattern for background-position with Sass" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Linear pattern for background-position with Sass</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Line and grid patterns for background-position with Sass</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 
