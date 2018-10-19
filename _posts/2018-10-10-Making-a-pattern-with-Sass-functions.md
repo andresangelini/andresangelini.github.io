@@ -234,9 +234,56 @@ With this, we will create a new function called `bkg-pos-line` which will loop `
 
 Now we must the same logic to obtain a **grid** using multiple **lines** of images instead of just images. This time, the ecuations change to `$line-dx * $i + $grid-x` and `$line-dy * $i + $grid-y` for each `$line-x` and `$line-y` where:
 
-- `$line-dx` and `$line-dy` are the horizontal and vertical distances between each line patter.
+- `$line-dx` and `$line-dy` are the horizontal and vertical distances between each line pattern.
 - `$i` is the `@for` loop **iterator** used to increase the distance of the **grid** from the container's top left corner.
 - `$grid-x` and `$grid-y` are the coordinates of the grid pattern's top left corner.
+
+The idea behind this is to create a **grid** out of **lines** using the `bkg-pos-line()` function we just created and set the coordinates for each **line** as the **iteraror** increases so we don't have to write the same function over and over again to get more than one line of `background-images`:
+
+```
+background-positions: bkg-pos-line($line-x: 0px,
+                                   $line-y: 0px,
+                                   $img-dx: 568px,
+                                   $img-dy: 0px,
+                                   $imgs: 3),
+                      bkg-pos-line($line-x: 0px,
+                                   $line-y: 568px,
+                                   $img-dx: 568px,
+                                   $img-dy: 0px,
+                                   $imgs: 3);
+```
+
+This positions 3 images in a row next to each other without any gap and another 3 right below them also in a line. However, our new function called `bkg-pos-grid` will make writing this much easier and it looks like this:
+
+```scss
+@function bkg-pos-grid($grid-x: 0px,
+                       $grid-y: 0px,
+                       $img-dx: 0px,
+                       $img-dy: 0px,
+                       $line-dx: 0px,
+                       $line-dy: 0px,
+                       $imgs: 1,
+                       $lines: 1) {
+  $result: null;
+
+  @for $i from 0 to $lines {
+    $result: $result, bkg-pos-line(calc((#{$line-dx} * #{$i}) + #{$grid-x}), calc((#{$line-dy} * #{$i}) + #{$grid-y}), $img-dx, $img-dy, $imgs);
+  }
+
+  @return $result;
+}
+```
+
+And we can set the positions for all the `background-images` of the `grooves` like this:
+
+```
+background-position: bkg-pos-grid($grid-x: 0px,
+                                    $grid-y: 0px,
+                                    $img-dx: 568px,
+                                    $img-dy: 0px,
+                                    $line-dy: 568px,
+                                    $imgs: 3, $lines: 2);
+```
 
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Line and grid patterns for background-position with Sass</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
