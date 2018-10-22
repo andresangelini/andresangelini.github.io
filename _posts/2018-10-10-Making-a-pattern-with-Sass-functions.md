@@ -274,7 +274,7 @@ This positions 3 images in a row next to each other without any gap and another 
 }
 ```
 
-And we can set the positions for all the `background-images` of the `grooves` like this:
+And we can set the `background-positions` for the `grooves` like this:
 
 ```
 background-position: bkg-pos-grid($grid-x: 0px,
@@ -285,11 +285,36 @@ background-position: bkg-pos-grid($grid-x: 0px,
                                     $imgs: 3, $lines: 2);
 ```
 
-<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Line and grid patterns for background-position with Sass</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass (grooves)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Line and grid patterns for background-position with Sass (grooves)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
+We will also use this very same function to remake the shading on the wood. The original SVG file consists of two symmetric shades with copies offseted horizontally by small margin, but the file we are using now has only those two symmetric shades. We will need to make three more copies for each side and change their sizes and positions to simulate the same effect. Since doing that would also leave empty gaps where there shouldn't be, we will need to increase their overall sizes too. This time however, two instances of `bkg-pos-grid()` function are needed; one for each side.
 
+We first increase the number of image to `16` (a grid of `4 x 2` for each side).
 
+```
+background-image: background-images($path-to-shades, 12);
+```
+
+Then set the `background-positions` like these:
+
+```
+background-position: bkg-pos-grid($grid-x: 12%,
+                                    $grid-y: 0px,
+                                    $img-dx: 14%,
+                                    $img-dy: 0px,
+                                    $line-dy: $shade-height,
+                                    $imgs: 4, $lines: 2),
+                       bkg-pos-grid($grid-x: 88%,
+                                    $grid-y: 0px,
+                                    $img-dx: -14%,
+                                    $img-dy: 0px,
+                                    $line-dy: $shade-height,
+                                    $imgs: 4, $lines: 2);
+```
+
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Line and grid patterns for background-position with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 
 
