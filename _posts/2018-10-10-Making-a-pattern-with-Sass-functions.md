@@ -120,14 +120,18 @@ A very basic way to simulate the grooves pattern of the planks in vanilla CSS, f
 }
 ```
 
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with plain CSS" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Tiled background with plain CSS</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
 The intention in this example is to create a tile pattern out of the grooves so that there are a total of 6 tiles next to each other in both `x` and `y` axis. But of course, we already know this could be a lot better by doing it the Sass way.
 
 ## Multiple `background-image`s with Sass
 
-First off, let's make a simple function for creating multiple `background-image`s. It should have two **parameters**; the path **URL** to the image and the **amount** of copies we want. A [`@for`][for] loop will do the trick here.
+First off, let's make a simple function for creating multiple `background-image`s. It should have two parameters; the `$path` URL to the image and the `$amount` of copies we want. A [`@for`][for] loop will do the trick here.
 
 ```scss
-@function background-images($path, $amount) {
+// Returns multiple backgroun images.
+@function bkg-imgs($path, $amount) {
   $result: url($path);
 
   @for $i from 1 to $amount {
@@ -138,68 +142,8 @@ First off, let's make a simple function for creating multiple `background-image`
 }
 ```
 
-However, whay would happen if the user of this function enters `0`, `-2`, `32px` or even `sfd` whether by accident or even intentionally? We need to apply some kind of **error handling** so as to let the user know what's wrong. To begin with, the `$amount` parameter should default to `1` because that's the minimum amount of images one could possible use. Just like in so many other languages, Sass let's us specify which **parameter** goes with which **value** regardless of any order by declaring it as:
-
-```scss
-@function shake($fruit: "banana", $drink: "milk") {
-  // Make the ultimate milkshake!
-}
-```
-
-If the user of this function doesn't change `$fruit` or `$drink` when invoking it, these parameters will use their default values of `"banana"` and `"milk"` respectively. So, in our case it will be `$amount: 1`.
-
-Now, we can check if the user set `amount` to a value other than a number by using Sass built-in function [`unitless()`][unitless] and execute our [`@for`][for] loop on `true` or throw and [`@error`][error] on `false`. The erro message coud be something like `"background-images: $amount is invalid, was 32px, expected integer"`. But as you know by now, we should make things as generic and reusable as possible becuase we will probably handling more errors in the future and don't want be doing the same thing over and over again. Let's make a new and even more generic function that takes the **function's name**, the **argument** causing the issue, its current **value** and the **expected ones**.
-
-```scss
-@function invalid-arg($function-name, $arg-name, $arg, $expected-args) {
-  @return "#{$function-name}: #{$arg-name} is invalid, was #{$arg}, " +
-          "expected #{$expected-args}.";
-};
-```
-
-Where `#{$variable}` is the other method Sass has to interpolate a a variable with a string by inserting it direclty innto it.
-
-With that out of the way, now we can complete our `background-images` function.
-
-```scss
-@function background-images($path, $amount: 1) {
-  $result: url($path);
-
-  @if (unitless($amount)) {
-    @for $i from 1 to $amount {
-      $result: $result, url($path);
-    }
-  } @else {
-    @error invalid-arg("background-images", "$amount", $amount, "integer");
-  }
-
-  @return $result;
-}
-```
-From now on, whenever we need to set multiple `background-image`s using the same image, we will only have to do:
-
-```scss
-background-image: background-images(../path/to/cats.png, 20);
-```
-And even:
-
-```scss
-.pets {
-  background-image: background-images("../path/to/cats.png", 20),
-                    background-images("../path/to/dogs.png", 50),
-                    background-images("../path/to/birds.png"),
-                    background-images("../path/to/rabbits.png", 2);
-}
-```
-
-We are not working with pets, but with **grooves** and **shades**, though. By trial and error I figured out that I needed **80** tiles of **shades** and **100** of **grooves** just to make sure the pattern won't brake in large screens.
-
-```scss
-& div:nth-child(1) {
-  background-image: background-images($path-to-shades, 80),
-                    background-images($path-to-grooves, 100);
-}
-```
+<p data-height="265" data-theme-id="dark" data-slug-hash="wYYJpQ" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Multiple backgrounds with Sass" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/wYYJpQ/">Multiple backgrounds with Sass</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 It's important to remember that, contrary to what one would normally expect, the first `background-image` is the one closest to the user and the ones than come after it are placed behind.
 
@@ -207,7 +151,7 @@ It's important to remember that, contrary to what one would normally expect, the
 
 The `background-position` property let us move a `background-image` in the `x` and `y` directions. In our earlier example we set the three first images next to each other along the `x` axis and the three last ones in a second row below.
 
-<p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Linear pattern for background-position" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Linear pattern for background-position</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with plain CSS" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Tiled background with plain CSS</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 In other words, the positions of the images can be described by the general ecuation of a straight line `$img-dx * $i + $line-x` for `x` axis and `$img-dy * $i + $line-y` for `y`, where:
@@ -253,7 +197,7 @@ background-positions: bkg-pos-line($line-x: 0px,
                                    $imgs: 3);
 ```
 
-This positions 3 images in a row next to each other without any gap and another 3 right below them also in a line. However, our new function called `bkg-pos-grid` will make writing this much easier and it looks like this:
+This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `bkg-pos-grid` will make writing this much easier and it looks like this:
 
 ```scss
 @function bkg-pos-grid($grid-x: 0px,
@@ -285,7 +229,7 @@ background-position: bkg-pos-grid($grid-x: 0px,
                                     $imgs: 3, $lines: 2);
 ```
 
-<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass (grooves)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Line and grid patterns for background-position with Sass (grooves)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (grooves)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Tiled background with Sass (grooves)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 We will also use this very same function to remake the shading on the wood. The original SVG file consists of two symmetric shades with copies offseted horizontally by small margin, but the file we are using now has only those two symmetric shades. We will need to make three more copies for each side and change their sizes and positions to simulate the same effect. Since doing that would also leave empty gaps where there shouldn't be, we will need to increase their overall sizes too. This time however, two instances of `bkg-pos-grid()` function are needed; one for each side.
@@ -293,10 +237,10 @@ We will also use this very same function to remake the shading on the wood. The 
 We first increase the number of image to `16` (a grid of `4 x 2` for each side).
 
 ```
-background-image: background-images($path-to-shades, 12);
+background-image: background-images($path-to-shades, 16);
 ```
 
-Then set the `background-positions` like these:
+Then set the `background-position`s like these:
 
 ```
 background-position: bkg-pos-grid($grid-x: 12%,
@@ -313,13 +257,30 @@ background-position: bkg-pos-grid($grid-x: 12%,
                                     $imgs: 4, $lines: 2);
 ```
 
-<p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Line and grid patterns for background-position with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Line and grid patterns for background-position with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Tiled background with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
+The **chains**, however, will present us a new problem. Both pair of chains (the ones on the top and on the bottom) are made by a single SVG file with links seen sideways and two other seen from the front. The purpose of such an arragment is to set the `background-size` to be double than that of its container so as to show only one view of the links at a time while using just a single SVG file.
 
+```
+background-image: bkg-img($path-to-chain-link, 2);
+background-position: 0 calc(100% + 3px), 100% calc(100% + 43px);
+background-size: 200% $chain-link-height;
+```
 
+The first link of each chain is the one seeen from the side. Since this is the first link in the SVG file from left to right, we set the fist `background-position` to be on the left, hence `x = 0`. On the other side, the second image is located on the right side of the file, so we set the position of the second image to be `100%`, that is `x = 100%`.
 
+As for their `y` coordinates, the tip of the side links should barely touch the bottom of the container so we add `3px` to `100%` to remove the empty gap in the SVG file. The same goes for the links seen from the fron, only this time the required amount is `-43px`.
 
+That being said, the links don't quite align yet. Their images get cut halfway through. This is because the **iterator** inside the **bkg-pos-line** function only increases by `1` and in this case, we need it to increase according to the formula `2 * $i - 1`, but alas, Sass doesn't have a feature to control a `@for` loop **iterator** directly. The answer however, is quite simple. Instead of trying to control the **iterator**, we just need to replace the `$i` in `$img-dx * $i + $line-x` and `$img-dy * $i + $line-y` by `$a * $i + $b` so that we get:
+
+`$img-dx * ($a * $i + $b) + $line-x`
+
+and
+
+`$img-dy * ($a * $i + $b) + $line-y`
+
+Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `bkg-pos-line()` and `bkg-pos-grid()` functions to accept them. 
 
 
 
