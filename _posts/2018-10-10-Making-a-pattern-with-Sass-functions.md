@@ -260,7 +260,11 @@ background-position: bkg-pos-grid($grid-x: 12%,
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Tiled background with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-The **chains**, however, will present us a new problem. Both pair of chains (the ones on the top and on the bottom) are made by a single SVG file with links seen sideways and two other seen from the front. The purpose of such an arragment is to set the `background-size` to be double than that of its container so as to show only one view of the links at a time while using just a single SVG file.
+The **chains**, however, will present us a new problem. Both pair of chains (the ones on the top and on the bottom) are made by a single SVG file with links seen sideways and two other seen from the front.
+
+![chainLink.svg][chain link]
+
+The purpose of such an arragment is to create two lines of images, one for the links seen from the side and another for the ones seen from the front, and set their `background-size` to be double than that of its container so as to show only one view of the links at a time while using just a single SVG file.
 
 ```
 background-image: bkg-img($path-to-chain-link, 2);
@@ -280,7 +284,20 @@ and
 
 `$img-dy * ($a * $i + $b) + $line-y`
 
-Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `bkg-pos-line()` and `bkg-pos-grid()` functions to accept them. 
+Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `bkg-pos-line()` and `bkg-pos-grid()` functions to accept them.
+
+It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$img-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100%` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$imgs` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
+
+The second line will display the images of the links seen from the front. It's position, or `$line-y` should be almost at the bottom of the container. `calc(100% - 43px)` to be precise. The `$img-dy` this time should be half of the SVG's height, so we set it to `calc(#{-$chain-llink-height} / 2)`. And finally, the moment we were all waiting for,  we set the multiplier `$a` to `2` and `$b` to `-1` to get the right distance between these links. Lastly, we set `$imgs` to `10` as well.
+
+Rinse and repeat for the bottom chains, removing `100%` and the minus sign in both lines' `$line-y` and `$img-dy` values.
+
+The final result of our hard work looks as follows.
+
+<p data-height="265" data-theme-id="dark" data-slug-hash="MPqKBe" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (chains)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/MPqKBe/">Tiled background with Sass (chains)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
+<script async src="https://static.codepen.io/assets/embed/ei.js"></script>
+
+Just perfect! All we need to do now is wrap all this up with some `@mixin`s and we will be good to go.
 
 
 
@@ -292,3 +309,4 @@ Where `$a` and `$b` are two new parameters to be set by the function's user and 
 [for]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#for
 [unitless]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
 [error]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#error
+[chain link]: https://cdn.rawgit.com/andresangelini/5969d4f442bb18ec3b81db61ab4202fe/raw/6a51402d5877ccfec47937952937af0d39aa7ddc/chainLink.svg "Chain Link SVG"
