@@ -244,17 +244,17 @@ Then set the `background-position`s like these:
 
 ```
 background-position: bkg-pos-grid($grid-x: 12%,
-                                    $grid-y: 0px,
-                                    $img-dx: 14%,
-                                    $img-dy: 0px,
-                                    $line-dy: $shade-height,
-                                    $imgs: 4, $lines: 2),
-                       bkg-pos-grid($grid-x: 88%,
-                                    $grid-y: 0px,
-                                    $img-dx: -14%,
-                                    $img-dy: 0px,
-                                    $line-dy: $shade-height,
-                                    $imgs: 4, $lines: 2);
+                                  $grid-y: 0px,
+                                  $img-dx: 14%,
+                                  $img-dy: 0px,
+                                  $line-dy: $shade-height,
+                                  $imgs: 4, $lines: 2),
+                     bkg-pos-grid($grid-x: 88%,
+                                  $grid-y: 0px,
+                                  $img-dx: -14%,
+                                  $img-dy: 0px,
+                                  $line-dy: $shade-height,
+                                  $imgs: 4, $lines: 2);
 ```
 
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Tiled background with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
@@ -298,6 +298,41 @@ The final result of our hard work looks as follows.
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
 Just perfect! All we need to do now is wrap all this up with some `@mixin`s and we will be good to go.
+
+The first `@mixin` will create is the one for the planks.
+
+```scss
+@mixin planks-multiple-backgrounds($corner-width) {
+  background-clip: padding-box;
+  background-color: $color-planks-diffuse;
+  background-image: bkg-imgs($path-to-shades, 80),
+                    bkg-imgs($path-to-grooves, 100);
+  background-position: bkg-pos-grid($grid-x: 12%,
+                                    $grid-y: 0px,
+                                    $img-dx: 14%,
+                                    $img-dy: 0px,
+                                    $line-dy: $shade-height,
+                                    $imgs: 4, $lines: 2),
+                       bkg-pos-grid($grid-x: 88%,
+                                    $grid-y: 0px,
+                                    $img-dx: -14%,
+                                    $img-dy: 0px,
+                                    $line-dy: $shade-height,
+                                    $imgs: 4, $lines: 2),
+                       bkg-pos-grid($grid-x: 0px,
+                                    $grid-y: 0px,
+                                    $img-dx: $grooves-width,
+                                    $img-dy: 0px,
+                                    $line-dy: $grooves-height,
+                                    $imgs: 3,
+                                    $lines: 2);
+  background-size: background-sizes(200%, $shade-height, 80),
+                   background-sizes($grooves-width, $grooves-height, 100);
+  background-repeat: no-repeat;
+  box-sizing: border-box;
+  clip-path: planks-clip($corner-width);
+}
+```
 
 
 
