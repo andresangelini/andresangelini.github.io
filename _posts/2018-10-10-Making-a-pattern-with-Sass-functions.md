@@ -286,9 +286,9 @@ and
 
 Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `bkg-pos-line()` and `bkg-pos-grid()` functions to accept them.
 
-It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$img-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100%` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$imgs` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
+It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$img-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100% - $chain-link-height` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$imgs` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
 
-The second line will display the images of the links seen from the front. It's position, or `$line-y` should be almost at the bottom of the container. `calc(100% - 43px)` to be precise. The `$img-dy` this time should be half of the SVG's height, so we set it to `calc(#{-$chain-llink-height} / 2)`. And finally, the moment we were all waiting for,  we set the multiplier `$a` to `2` and `$b` to `-1` to get the right distance between these links. Lastly, we set `$imgs` to `10` as well.
+The second line will display the images of the links seen from the front. It's position, or `$line-y` should be almost at the bottom of the container. `calc(100% + 3px - #{$chain-link-height})` to be precise. The `$img-dy` this time should be half of the SVG's height, so we set it to `calc(#{-$chain-link-height} / 2)`. And finally, the moment we were all waiting for,  we set the multiplier `$a` to `2` and `$b` to `-1` to get the right distance between these links. Lastly, we set `$imgs` to `10` as well.
 
 Rinse and repeat for the bottom chains, removing `100%` and the minus sign in both lines' `$line-y` and `$img-dy` values.
 
@@ -299,7 +299,7 @@ The final result of our hard work looks as follows.
 
 Just perfect! All we need to do now is wrap all this up with some `@mixin`s and we will be good to go.
 
-The first `@mixin` will create is the one for the planks.
+The first `@mixin` we will create is the one for the planks.
 
 ```scss
 @mixin planks-multiple-backgrounds($corner-width) {
@@ -312,20 +312,20 @@ The first `@mixin` will create is the one for the planks.
                                     $img-dx: 14%,
                                     $img-dy: 0px,
                                     $line-dy: $shade-height,
-                                    $imgs: 4, $lines: 2),
+                                    $imgs: 4, $lines: 10),
                        bkg-pos-grid($grid-x: 88%,
                                     $grid-y: 0px,
                                     $img-dx: -14%,
                                     $img-dy: 0px,
                                     $line-dy: $shade-height,
-                                    $imgs: 4, $lines: 2),
+                                    $imgs: 4, $lines: 10),
                        bkg-pos-grid($grid-x: 0px,
                                     $grid-y: 0px,
                                     $img-dx: $grooves-width,
                                     $img-dy: 0px,
                                     $line-dy: $grooves-height,
-                                    $imgs: 3,
-                                    $lines: 2);
+                                    $imgs: 10,
+                                    $lines: 10);
   background-size: background-sizes(200%, $shade-height, 80),
                    background-sizes($grooves-width, $grooves-height, 100);
   background-repeat: no-repeat;
@@ -334,6 +334,109 @@ The first `@mixin` will create is the one for the planks.
 }
 ```
 
+The only required argument is the `$corner-width` since this is what will be used to clip the `background-images` according to the type of board it is with the help of the `planks-cliip()` function we made earlier.
+
+Notice that this time I used a lot more images than in the previous examples; `10` lines of `4` images for the shades on each side, which amounts to a total of `80` images, and `10` lines of `10` images each for the grooves. As you might have realized, we could have created a more specific function for the shades, but I preferred not to avoid adding too many layers of abstraction and thus making it more difficult to understand how it all works.
+
+The second `@mixin` is the one for remaking the chains.
+
+```scss
+@mixin chains-multiple-backgrounds($chain-link-height, $offset-y) {
+  background-image: bkg-imgs($path-to-chain-link, 20);
+  background-position: bkg-pos-line($line-x: 0px,
+                                    $line-y: calc(100% + #{$offset-y}),
+                                    $img-dx: 0px,
+                                    $img-dy: -$chain-link-height,
+                                    $imgs: 10),
+                       bkg-pos-line($line-x: 100%,
+                                    $line-y: calc(100% + #{$offset-y} - #{$chain-link-height}),
+                                    $img-dx: 0px,
+                                    $img-dy: calc(#{-$chain-link-height} / 2),
+                                    $a: 2,
+                                    $b: -1,
+                                    $imgs: 10);
+  background-size: 200% $chain-link-height;
+  background-repeat: no-repeat;
+}
+```
+
+We will leave `$chain-link-height` and `$offset-y` as reuired parameters in case we make any modification to the graphics in the future.
+
+With the `@mixin`s completed and ready to roll we can finally the issue of alpha transparency not being rendered properly in Safari 11.
+
+For **bulletin** type board (inside the `&--type-bulletin` selector):
+
+```scss
+@at-root .jpeg2000.peerconnection & {
+  & div:nth-child(12) {@include chains-multiple-backgrounds($chain-link-height, 3px);}     
+  & div:nth-child(1) {@include planks-multiple-backgrounds($bulletin-corner-width);}
+}
+```
+
+For the **sign** one (inside the `&--type-sign` selector):
+
+```scss
+@at-root .jpeg2000.peerconnection & { // Change back to .jpeg2000 after testing.
+
+  div {
+    background: none; // Just make sure no background is displayed.
+  }
+
+  & div:nth-child(13) {@include chains-multiple-backgrounds($chain-link-height, 3px);}
+  & div:nth-child(12) {@include chains-multiple-backgrounds($y: -3px, $offset-y: $chain-link-height);}
+  & div:nth-child(11) {@include corners($path-to-sign-corners, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(10) {@include horizontal-sides($path-to-sign-horizontal-sides, $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(9) {@include vertical-sides($path-to-vertical-sides, $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
+  & div:nth-child(8) {@include holes($path-to-sign-holes, $sign-holes-width, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(7) {@include horizontal-sides($path-to-horizontal-sides-depth, $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(6) {@include corners($path-to-sign-corners-depth, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(5) {@include horizontal-sides($path-to-horizontal-sides-shadow, $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(4) {@include vertical-sides($path-to-vertical-sides-shadow, $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
+  & div:nth-child(3) {@include corners($path-to-sign-corners-shadow, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(2) {@include holes($path-to-sign-holes-shadow, $sign-holes-shadow-width, $sign-board-height, $sign-board-position-top);}
+  & div:nth-child(1) {@include planks-multiple-backgrounds($sign-corner-width);}
+}
+```
+
+With this last step he have covered all the issues worth fixing. All we need to do is to display a message prompting the user to update their browser or device if they don't support one of the required features. Since we might be doing this more than one time, a `@mixim` will come really in handy.
+
+```scss
+@mixin full-page-msg($msg) {
+  content: $msg;
+  font-family: MedievalSharp;
+  font-size: 2em;
+  margin-top: -0.5em;
+  position: absolute;
+  text-align: center;
+  top: 50%;
+  color: black;
+  width: 100%;
+}
+```
+
+The required features in case are CSS **calc()**, **gradients** and **generated content**. If one of them is not supported then the message itself will be appended to the HTML document itself so we use `@at-root` directive to keep this rule tidely packed inside `.board`. Of course, the board should be hidden completely.
+
+Also, Firefox 15 and older don't display SVG elements that use viewbox attribute, so in this case we have to use a combination of two Modernizr detects; **sandbox** and **cssmozoutlineradius** (for targeting Firefox specifically) to decide whether to display or not the board. Note that as a compromise Firefox 16 which does display the SVG properly but it will be skipped for convenience.
+
+```scss
+@at-root .no-csscalc,
+         .no-cssgradients,
+         /* IE < 10 dont't support innerHTML on html elements. */
+         .no-generatedcontent,
+         .cssmozoutlineradius.no-sandbox
+        {
+  /* Remember, IE8 only supports the single-colon CSS 2.1 syntax (i.e. :pseudo-class). This is fixed width Autoprefixer. */
+  ::after {
+    @include full-page-msg($browser-is-too-old);
+  }
+
+  .board {
+    display: none;
+  }
+}
+```
+
+Finally! With this we have made sure the site will try to **degrade gracefully** if a feature is not supported or at display a friendly message if not even the fallback method works. There is probably a lot more room for improvement but now we have a solid foundation to work upon. One of those improvements is something that is easy to forget when working with Sass. I'm talking about **error handling**. We touch on this topic in the next post and with it give a proper closure to our adventure packed journey.
 
 
 
