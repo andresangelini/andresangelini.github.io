@@ -12,7 +12,7 @@ Let's start with what seems easier; the **background color**.
 
 ## Clipping in CSS
 
-Safari 11 might not support SVG patterns with alpha but it does have partial support for CSS `clip-path` if you use it along with CSS [shapes]. These last ones are a relatively new feature that allow us to draw simple figures in CSS. You have your basic shapes such as `line()`, `rectangle()` and `circle()`. To create a figure using both you only need to set a `clip-path` **property** with any of these shapes as a **value** to a `div`. For example:
+Safari 11 might not support SVG patterns or `background-repeat` with alpha but it does have partial support for CSS `clip-path` if you use it along with CSS [shapes]. These last ones are a relatively new feature that allow us to draw simple figures in CSS. You have your basic shapes such as `line()`, `rectangle()` and `circle()`. To create a figure using both you only need to set a `clip-path` **property** with any of these shapes as a **value** to a `div`. For example:
 
 ```css
 clip-path: circle(50px);
@@ -36,7 +36,7 @@ cip-path: polygon(x-1 y-1, x-2 y-2, x-3 y-3, ...);
 <p data-height="265" data-theme-id="dark" data-slug-hash="JmWJKE" data-default-tab="result" data-user="andresangelini" data-pen-title="CSS polygon" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/JmWJKE/">CSS polygon</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-All the usual units are allowed which is exactly what we need in order for this clip-path to be flexible. However, the boards differ not only in the size of their corners but the sign type also has holes in the bottom, so it would be wise to write a function that returns a `polygon()` depending on which board it is. To do this, we will need to use another great feature of Sass; the built-in [`if()`][if] function (not to be confused with the [`@if`][if] directive).
+All the usual units are allowed which is exactly what we need in order for this `clip-path` to be flexible. However, the boards differ not only in the size of their corners but the sign type also has holes in the bottom, so it would be wise to write a function that returns a `polygon()` depending on which board it is. To do this, we will need to use another great feature of Sass; the built-in [`if()`][if] function (not to be confused with the [`@if`][if] directive).
 
 It basically works like this:
 
@@ -60,7 +60,7 @@ $bottom-holes: calc-holes-position-right($corner-width) $side-curve-right + "," 
                calc-holes-position-left($corner-width) $side-curve-right + ",";
 ```
 
-The result is a function does everything for us by simply changing its argument to the correspondant `$corner-width`.
+The result is a function that does everything for us by simply changing its argument to the correspondant `$corner-width`.
 
 ```scss
 @function planks-clip($corner-width) {
@@ -127,7 +127,7 @@ The intention in this example is to create a tile pattern out of the grooves so 
 
 ## Multiple `background-image`s with Sass
 
-First off, let's make a simple function for creating multiple `background-image`s. It should have two parameters; the `$path` URL to the image and the `$amount` of copies we want. A [`@for`][for] loop will do the trick here.
+First off, let's make a simple function for creating multiple `background-image`s out from a single file. It should have two parameters; the `$path` URL to the image and the `$amount` of copies we want. A [`@for`][for] loop will do the trick here.
 
 ```scss
 // Returns multiple backgroun images.
@@ -176,11 +176,11 @@ With this, we will create a new function called `background-positions-in-a-line`
 }
 ```
 
-Now we must the same logic to obtain a **tiled** background in **two** directions by creating multiple **lines** of **tiles**. This time, the ecuations change to `$line-dx * $i + $tiling-x` and `$line-dy * $i + $tiling-y` for each `$line-x` and `$line-y` where:
+Now we must use the same logic to obtain a **tiled** background in **two** directions by creating multiple **lines** of **tiles**. This time, the ecuations change to `$line-dx * $i + $tiling-x` and `$line-dy * $i + $tiling-y` for each `$line-x` and `$line-y` where:
 
 - `$line-dx` and `$line-dy` are the horizontal and vertical distances between each line pattern.
-- `$i` is the `@for` loop **iterator** used to increase the distance of the **grid** from the container's top left corner.
-- `$tiling-x` and `$tiling-y` are the coordinates of the grid pattern's top left corner.
+- `$i` is the `@for` loop **iterator** used to increase the distance of the **tiling** from the container's top left corner.
+- `$tiling-x` and `$tiling-y` are the coordinates of the tiling's top left corner.
 
 The idea behind this is to create a **tiling** out of **lines** using the `tiled-background-positions-in-a-line()` function we just created and set the coordinates for each **line** as the **iteraror** increases so we don't have to write the same function over and over again to get more than one line of `background-images`:
 
@@ -197,7 +197,7 @@ background-positions: tiled-background-positions-in-a-line($line-x: 0px,
                                                            $tiles: 3);
 ```
 
-This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `tiled-background-positions` will make writing this much easier. It will be an improvement over `tiled-background-positions-in-a-line` by using it as a base to work upon, which means there won't be any reason to use it outside `tiled-background-positions` anymore. That's why will append an **underscore** to its name to let other developers know that it's **private** and should not be used anywhere else: `_tiled-background-positions-in-a-line()`. With that out of the way, we can move on to creating our new function.
+This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `tiled-background-positions` will make writing this much easier. It will be an improvement over `background-positions-in-a-line` by using it as a base to work upon, which means there won't be any reason to use it outside `tiled-background-positions()` anymore. That's why will append an **underscore** to its name to let other developers know that it's **private** and should not be used anywhere else: `_tiled-background-positions-in-a-line()`. With that out of the way, we can move on to creating our new function.
 
 ```scss
 @function tiled-background-positions($tiling-x: 0px,
@@ -284,7 +284,7 @@ and
 
 `$tile-dy * ($a * $i + $b) + $line-y`
 
-Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `tiled-background-positions-in-a-line()` and `tiled-background-positions()` functions to accept them.
+Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `tiled-tiled-background-positions-in-a-line()` and `tiled-background-positions()` functions to accept them.
 
 It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$tile-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100% - $chain-link-height` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$tiles` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
 
