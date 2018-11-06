@@ -131,7 +131,7 @@ First off, let's make a simple function for creating multiple `background-image`
 
 ```scss
 // Returns multiple backgroun images.
-@function bkg-imgs($path, $amount) {
+@function tiled-background-images($path, $amount) {
   $result: url($path);
 
   @for $i from 1 to $amount {
@@ -154,64 +154,64 @@ The `background-position` property let us move a `background-image` in the `x` a
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgjQKo" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with plain CSS" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjQKo/">Tiled background with plain CSS</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-In other words, the positions of the images can be described by the general ecuation of a straight line `$img-dx * $i + $line-x` for `x` axis and `$img-dy * $i + $line-y` for `y`, where:
+In other words, the positions of the images can be described by the general ecuation of a straight line `$tile-dx * $i + $line-x` for `x` axis and `$tile-dy * $i + $line-y` for `y`, where:
 
-- `$img-dx` and `$img-dy`are the horizontal and vertical distances between each `background-image`.
+- `$tile-dx` and `$tile-dy`are the horizontal and vertical distances between each `background-image`.
 - `$i` is the `@for` loop **iterator** used to increase the distance of the **line** from the container's top left corner.
 - `$line-x` and `$line-y` are the coordinates of the **line** of `background-image`'s top left corner.
 
-With this, we will create a new function called `bkg-pos-line` which will loop `$imgs` number of times to concatenate each new `$result` to the previous one as `$i` increases and returns multiple `background-postion`'s in a **line** pattern.
+With this, we will create a new function called `background-positions-in-a-line` which will loop `$tiles` number of times to concatenate each new `$result` to the previous one as `$i` increases and returns multiple `background-postion`'s in a **line** pattern.
 
 ```scss
-@function bkg-pos-line($line-x: 0px, $line-y: 0px, $img-dx: 0px, $img-dy: 0px, $imgs: 1) {
+@function background-positions-in-a-line($line-x: 0px, $line-y: 0px, $tile-dx: 0px, $tile-dy: 0px, $tiles: 1) {
   $result: null;
 
-  @for $i from 0 to $imgs {
-    $result: $result, calc((#{$img-dx} * #{$i}) + #{$line-x}) +
+  @for $i from 0 to $tiles {
+    $result: $result, calc((#{$tile-dx} * #{$i}) + #{$line-x}) +
                       " " +
-                      calc((#{$img-dy} * #{$i}) + #{$line-y});
+                      calc((#{$tile-dy} * #{$i}) + #{$line-y});
   }
 
   @return $result;
 }
 ```
 
-Now we must the same logic to obtain a **grid** using multiple **lines** of images instead of just images. This time, the ecuations change to `$line-dx * $i + $grid-x` and `$line-dy * $i + $grid-y` for each `$line-x` and `$line-y` where:
+Now we must the same logic to obtain a **tiled** background in **two** directions by creating multiple **lines** of **tiles**. This time, the ecuations change to `$line-dx * $i + $tiling-x` and `$line-dy * $i + $tiling-y` for each `$line-x` and `$line-y` where:
 
 - `$line-dx` and `$line-dy` are the horizontal and vertical distances between each line pattern.
 - `$i` is the `@for` loop **iterator** used to increase the distance of the **grid** from the container's top left corner.
-- `$grid-x` and `$grid-y` are the coordinates of the grid pattern's top left corner.
+- `$tiling-x` and `$tiling-y` are the coordinates of the grid pattern's top left corner.
 
-The idea behind this is to create a **grid** out of **lines** using the `bkg-pos-line()` function we just created and set the coordinates for each **line** as the **iteraror** increases so we don't have to write the same function over and over again to get more than one line of `background-images`:
+The idea behind this is to create a **tiling** out of **lines** using the `tiled-background-positions-in-a-line()` function we just created and set the coordinates for each **line** as the **iteraror** increases so we don't have to write the same function over and over again to get more than one line of `background-images`:
 
 ```
-background-positions: bkg-pos-line($line-x: 0px,
-                                   $line-y: 0px,
-                                   $img-dx: 568px,
-                                   $img-dy: 0px,
-                                   $imgs: 3),
-                      bkg-pos-line($line-x: 0px,
-                                   $line-y: 568px,
-                                   $img-dx: 568px,
-                                   $img-dy: 0px,
-                                   $imgs: 3);
+background-positions: tiled-background-positions-in-a-line($line-x: 0px,
+                                                           $line-y: 0px,
+                                                           $tile-dx: 568px,
+                                                           $tile-dy: 0px,
+                                                           $tiles: 3),
+                      tiled-background-positions-in-a-line($line-x: 0px,
+                                                           $line-y: 568px,
+                                                           $tile-dx: 568px,
+                                                           $tile-dy: 0px,
+                                                           $tiles: 3);
 ```
 
-This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `bkg-pos-grid` will make writing this much easier and it looks like this:
+This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `tiled-background-positions` will make writing this much easier. It will be an improvement over `tiled-background-positions-in-a-line` by using it as a base to work upon, which means there won't be any reason to use it outside `tiled-background-positions` anymore. That's why will append an **underscore** to its name to let other developers know that it's **private** and should not be used anywhere else: `_tiled-background-positions-in-a-line()`. With that out of the way, we can move on to creating our new function.
 
 ```scss
-@function bkg-pos-grid($grid-x: 0px,
-                       $grid-y: 0px,
-                       $img-dx: 0px,
-                       $img-dy: 0px,
+@function tiled-background-positions($tiling-x: 0px,
+                       $tiling-y: 0px,
+                       $tile-dx: 0px,
+                       $tile-dy: 0px,
                        $line-dx: 0px,
                        $line-dy: 0px,
-                       $imgs: 1,
+                       $tiles-per-line: 1,
                        $lines: 1) {
   $result: null;
 
   @for $i from 0 to $lines {
-    $result: $result, bkg-pos-line(calc((#{$line-dx} * #{$i}) + #{$grid-x}), calc((#{$line-dy} * #{$i}) + #{$grid-y}), $img-dx, $img-dy, $imgs);
+    $result: $result, _tiled-background-positions-in-a-line(calc((#{$line-dx} * #{$i}) + #{$tiling-x}), calc((#{$line-dy} * #{$i}) + #{$tiling-y}), $tile-dx, $tile-dy, $tiles-per-image);
   }
 
   @return $result;
@@ -221,18 +221,18 @@ This positions 3 images in a row next to each other without any gap in between a
 And we can set the `background-positions` for the `grooves` like this:
 
 ```
-background-position: bkg-pos-grid($grid-x: 0px,
-                                    $grid-y: 0px,
-                                    $img-dx: 568px,
-                                    $img-dy: 0px,
+background-position: tiled-background-positions($tiling-x: 0px,
+                                    $tiling-y: 0px,
+                                    $tile-dx: 568px,
+                                    $tile-dy: 0px,
                                     $line-dy: 568px,
-                                    $imgs: 3, $lines: 2);
+                                    $tiles-per-line: 3, $lines: 2);
 ```
 
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (grooves)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Tiled background with Sass (grooves)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-We will also use this very same function to remake the shading on the wood. The original SVG file consists of two symmetric shades with copies offseted horizontally by small margin, but the file we are using now has only those two symmetric shades. We will need to make three more copies for each side and change their sizes and positions to simulate the same effect. Since doing that would also leave empty gaps where there shouldn't be, we will need to increase their overall sizes too. This time however, two instances of `bkg-pos-grid()` function are needed; one for each side.
+We will also use this very same function to remake the shading on the wood. The original SVG file consists of two symmetric shades with copies offseted horizontally by small margin, but the file we are using now has only those two symmetric shades. We will need to make three more copies for each side and change their sizes and positions to simulate the same effect. Since doing that would also leave empty gaps where there shouldn't be, we will need to increase their overall sizes too. This time however, two instances of `tiled-background-positions()` function are needed; one for each side.
 
 We first increase the number of image to `16` (a grid of `4 x 2` for each side).
 
@@ -243,18 +243,18 @@ background-image: background-images($path-to-shades, 16);
 Then set the `background-position`s like these:
 
 ```
-background-position: bkg-pos-grid($grid-x: 12%,
-                                  $grid-y: 0px,
-                                  $img-dx: 14%,
-                                  $img-dy: 0px,
+background-position: tiled-background-positions($tiling-x: 12%,
+                                  $tiling-y: 0px,
+                                  $tile-dx: 14%,
+                                  $tile-dy: 0px,
                                   $line-dy: $shade-height,
-                                  $imgs: 4, $lines: 2),
-                     bkg-pos-grid($grid-x: 88%,
-                                  $grid-y: 0px,
-                                  $img-dx: -14%,
-                                  $img-dy: 0px,
+                                  $tiles-per-lilne: 4, $lines: 2),
+                     tiled-background-positions($tiling-x: 88%,
+                                  $tiling-y: 0px,
+                                  $tile-dx: -14%,
+                                  $tile-dy: 0px,
                                   $line-dy: $shade-height,
-                                  $imgs: 4, $lines: 2);
+                                  $tiles-per-lilne: 4, $lines: 2);
 ```
 
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Tiled background with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
@@ -276,21 +276,21 @@ The first link of each chain is the one seeen from the side. Since this is the f
 
 As for their `y` coordinates, the tip of the side links should barely touch the bottom of the container so we add `3px` to `100%` to remove the empty gap in the SVG file. The same goes for the links seen from the fron, only this time the required amount is `-43px`.
 
-That being said, the links don't quite align yet. Their images get cut halfway through. This is because the **iterator** inside the **bkg-pos-line** function only increases by `1` and in this case, we need it to increase according to the formula `2 * $i - 1`, but alas, Sass doesn't have a feature to control a `@for` loop **iterator** directly. The answer however, is quite simple. Instead of trying to control the **iterator**, we just need to replace the `$i` in `$img-dx * $i + $line-x` and `$img-dy * $i + $line-y` by `$a * $i + $b` so that we get:
+That being said, the links don't quite align yet. Their images get cut halfway through. This is because the **iterator** inside the **tiled-background-positions-in-a-line** function only increases by `1` and in this case, we need it to increase according to the formula `2 * $i - 1`, but alas, Sass doesn't have a feature to control a `@for` loop **iterator** directly. The answer however, is quite simple. Instead of trying to control the **iterator**, we just need to replace the `$i` in `$tile-dx * $i + $line-x` and `$tile-dy * $i + $line-y` by `$a * $i + $b` so that we get:
 
-`$img-dx * ($a * $i + $b) + $line-x`
+`$tile-dx * ($a * $i + $b) + $line-x`
 
 and
 
-`$img-dy * ($a * $i + $b) + $line-y`
+`$tile-dy * ($a * $i + $b) + $line-y`
 
-Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `bkg-pos-line()` and `bkg-pos-grid()` functions to accept them.
+Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `tiled-background-positions-in-a-line()` and `tiled-background-positions()` functions to accept them.
 
-It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$img-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100% - $chain-link-height` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$imgs` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
+It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$tile-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100% - $chain-link-height` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$tiles` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
 
-The second line will display the images of the links seen from the front. It's position, or `$line-y` should be almost at the bottom of the container. `calc(100% + 3px - #{$chain-link-height})` to be precise. The `$img-dy` this time should be half of the SVG's height, so we set it to `calc(#{-$chain-link-height} / 2)`. And finally, the moment we were all waiting for,  we set the multiplier `$a` to `2` and `$b` to `-1` to get the right distance between these links. Lastly, we set `$imgs` to `10` as well.
+The second line will display the images of the links seen from the front. It's position, or `$line-y` should be almost at the bottom of the container. `calc(100% + 3px - #{$chain-link-height})` to be precise. The `$tile-dy` this time should be half of the SVG's height, so we set it to `calc(#{-$chain-link-height} / 2)`. And finally, the moment we were all waiting for,  we set the multiplier `$a` to `2` and `$b` to `-1` to get the right distance between these links. Lastly, we set `$lines` to `10` as well.
 
-Rinse and repeat for the bottom chains, removing `100%` and the minus sign in both lines' `$line-y` and `$img-dy` values.
+Rinse and repeat for the bottom chains, removing `100%` and the minus sign in both lines' `$line-y` and `$tile-dy` values.
 
 The final result of our hard work looks as follows.
 
@@ -305,27 +305,27 @@ The first `@mixin` we will create is the one for the planks.
 @mixin planks-multiple-backgrounds($corner-width) {
   background-clip: padding-box;
   background-color: $color-planks-diffuse;
-  background-image: bkg-imgs($path-to-shades, 80),
-                    bkg-imgs($path-to-grooves, 100);
-  background-position: bkg-pos-grid($grid-x: 12%,
-                                    $grid-y: 0px,
-                                    $img-dx: 14%,
-                                    $img-dy: 0px,
-                                    $line-dy: $shade-height,
-                                    $imgs: 4, $lines: 10),
-                       bkg-pos-grid($grid-x: 88%,
-                                    $grid-y: 0px,
-                                    $img-dx: -14%,
-                                    $img-dy: 0px,
-                                    $line-dy: $shade-height,
-                                    $imgs: 4, $lines: 10),
-                       bkg-pos-grid($grid-x: 0px,
-                                    $grid-y: 0px,
-                                    $img-dx: $grooves-width,
-                                    $img-dy: 0px,
-                                    $line-dy: $grooves-height,
-                                    $imgs: 10,
-                                    $lines: 10);
+  background-image: tiled-background-images($path-to-shades, 80),
+                    tiled-background-images($path-to-grooves, 100);
+  background-position: tiled-background-positions($tiling-x: 12%,
+                                                  $tiling-y: 0px,
+                                                  $tile-dx: 14%,
+                                                  $tile-dy: 0px,
+                                                  $line-dy: $shade-height,
+                                                  $tiles-per-lilne: 4, $lines: 10),
+                       tiled-background-positions($tiling-x: 88%,
+                                                  $tiling-y: 0px,
+                                                  $tile-dx: -14%,
+                                                  $tile-dy: 0px,
+                                                  $line-dy: $shade-height,
+                                                  $tiles-per-lilne: 4, $lines: 10),
+                       tiled-background-positions($tiling-x: 0px,
+                                                  $tiling-y: 0px,
+                                                  $tile-dx: $grooves-width,
+                                                  $tile-dy: 0px,
+                                                  $line-dy: $grooves-height,
+                                                  $tiles-per-lilne: 10,
+                                                  $lines: 10);
   background-size: background-sizes(200%, $shade-height, 80),
                    background-sizes($grooves-width, $grooves-height, 100);
   background-repeat: no-repeat;
@@ -342,19 +342,19 @@ The second `@mixin` is the one for remaking the chains.
 
 ```scss
 @mixin chains-multiple-backgrounds($chain-link-height, $offset-y) {
-  background-image: bkg-imgs($path-to-chain-link, 20);
-  background-position: bkg-pos-line($line-x: 0px,
-                                    $line-y: calc(100% + #{$offset-y}),
-                                    $img-dx: 0px,
-                                    $img-dy: -$chain-link-height,
-                                    $imgs: 10),
-                       bkg-pos-line($line-x: 100%,
-                                    $line-y: calc(100% + #{$offset-y} - #{$chain-link-height}),
-                                    $img-dx: 0px,
-                                    $img-dy: calc(#{-$chain-link-height} / 2),
-                                    $a: 2,
-                                    $b: -1,
-                                    $imgs: 10);
+  background-image: tiled-background-images($path-to-chain-link, 20);
+  background-position: tiled-background-positions-in-a-line($line-x: 0px,
+                                                            $line-y: calc(100% + #{$offset-y}),
+                                                            $tile-dx: 0px,
+                                                            $tile-dy: -$chain-link-height,
+                                                            $tiles-per-lilne: 10),
+                       tiled-background-positions-in-a-line($line-x: 100%,
+                                                            $line-y: calc(100% + #{$offset-y} - #{$chain-link-height}),
+                                                            $tile-dx: 0px,
+                                                            $tile-dy: calc(#{-$chain-link-height} / 2),
+                                                            $a: 2,
+                                                            $b: -1,
+                                                            $tiles-per-lilne: 10);
   background-size: 200% $chain-link-height;
   background-repeat: no-repeat;
 }
@@ -436,7 +436,7 @@ Also, Firefox 15 and older don't display SVG elements that use viewbox attribute
 }
 ```
 
-Finally! With this we have made sure the site will try to **degrade gracefully** if a feature is not supported or at display a friendly message if not even the fallback method works. There is probably a lot more room for improvement but now we have a solid foundation to work upon. One of those improvements is something that is easy to forget when working with Sass. I'm talking about **error handling**. We touch on this topic in the next post and with it give a proper closure to our adventure packed journey.
+Finally! With this we have succesfully made sure the site reacts properly to the user's browser capabilities by **degrading gracefully** if a feature is not supported or displaying a friendly message if not even that works. There is probably a lot more room for improvement but now we have a solid foundation to work upon. One of those improvements is something that is easy to forget when working with Sass. I'm talking about **error handling**. We will touch on this topic in the next post and with it give a proper closure to our adventure packed journey.
 
 
 
