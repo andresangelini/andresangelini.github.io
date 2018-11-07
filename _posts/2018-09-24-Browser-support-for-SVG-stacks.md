@@ -31,7 +31,7 @@ After carefully testing the boards we get the following results:
 - Chrome versions 36 to 49 only support SVG Fragment Identifiers when used inside `<img>` elements.
 - Safari 6, iOS Safari 6.1 and Chrome versions 25 to 19 suupport `calc()` with `-webkit-` prefix but older versions do not support it at all.
 - Safari won't display background image if background size and position aren't explicity set.
-- In Safari 11 SVG pattern elements with alpha are displayed with a black background instead of transparency.
+- In Safari 11, alpha transparencies in `background-image`s are rendered as a black if `background-repeat` or SVG's `pattern` element are used.
 - Firefox 15 and older don't display SVG elements that use viewbox attribute.
 - IE < 10 and very old version of FF, Chrome, Safari, Opera, etc., do not display SVGs properly, probably due to incompatibility issues with <pattern> elements.
 - IE < 10 dont't support innerHTML on HTML elements.
