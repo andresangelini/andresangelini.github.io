@@ -159,7 +159,7 @@ The remaining issue about browsers not supporting `calc()` can be solved quite s
 
 ## Sass advanced functions
 
-Another issue that popped out was that in Safari 11 SVG pattern elements with alpha are displayed with a black background instead of transparency. The closest that we can get to catching those browsers suffering from this is by combining `.jpeg2000` and `peerconnection` since [WebRTC Peer-to-peer connections][peerconnections] is not supported by Safari 11.
+Another issue that popped out was that Safari 11 didn't display SVG's transparecy at all whenever any kind of repetition method was being used, wheter it be through `background-repetition` or using the SVG's `pattern` element. The closest that we can get to catching those browsers suffering from this is by combining `.jpeg2000` and `peerconnection` since [WebRTC Peer-to-peer connections][peerconnections] is not supported by Safari 11.
 
 Once more we add the following rule to each of the board types.
 
@@ -172,7 +172,7 @@ Once more we add the following rule to each of the board types.
 }
 ```
 
-Not being able to use **SVG patters** means that we will have to replace every **SVG Fragment** with an actual **SVG file**. However, doing such a thing would result in having to write a massive amount of declarations just to have each image slightly modified. Of course, thanks to the power of [Sass], we don't have to, and in fact, it will give us the perfect opportunity to try some other cool stuff we can do with it. Be sure not to miss it in the next and final episode of our journey to building an awesome **Responsive Medieval Board with SVG Stacks**.
+Not being able to use **SVG patters** means that we will have to replace every **SVG Fragment** with an actual **SVG file**. However, doing such a thing would result in having to write a massive amount of declarations just to have each image slightly modified. Of course, thanks to the power of [Sass], we don't have to, and in fact, it will give us the perfect opportunity to try some other cool stuff we can do with it. Be sure not to miss the next post!
 
 
 [download]: https://modernizr.com/download
