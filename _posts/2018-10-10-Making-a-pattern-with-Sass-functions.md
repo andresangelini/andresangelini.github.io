@@ -131,7 +131,7 @@ First off, let's make a simple function for creating multiple `background-image`
 
 ```scss
 // Returns multiple backgroun images.
-@function tiled-background-images($path, $amount) {
+@function tiling-images($path, $amount) {
   $result: url($path);
 
   @for $i from 1 to $amount {
@@ -157,13 +157,13 @@ The `background-position` property let us move a `background-image` in the `x` a
 In other words, the positions of the images can be described by the general ecuation of a straight line `$tile-dx * $i + $line-x` for `x` axis and `$tile-dy * $i + $line-y` for `y`, where:
 
 - `$tile-dx` and `$tile-dy`are the horizontal and vertical distances between each `background-image`.
-- `$i` is the `@for` loop **iterator** used to increase the distance of the **line** from the container's top left corner.
+- `$i` is the `@for` loop **iterator** used to increase the distance of the **tiles** from the container's top left corner.
 - `$line-x` and `$line-y` are the coordinates of the **line** of `background-image`'s top left corner.
 
-With this, we will create a new function called `background-positions-in-a-line` which will loop `$tiles` number of times to concatenate each new `$result` to the previous one as `$i` increases and returns multiple `background-postion`'s in a **line** pattern.
+With this, we will create a new function called `tiling-line-positions` which will loop `$tiles` number of times to concatenate each new `$result` to the previous one as `$i` increases and returns multiple `background-postion`'s in a **line** pattern.
 
 ```scss
-@function background-positions-in-a-line($line-x: 0px, $line-y: 0px, $tile-dx: 0px, $tile-dy: 0px, $tiles: 1) {
+@function tiling-line-positions($line-x: 0px, $line-y: 0px, $tile-dx: 0px, $tile-dy: 0px, $tiles: 1) {
   $result: null;
 
   @for $i from 0 to $tiles {
@@ -179,39 +179,39 @@ With this, we will create a new function called `background-positions-in-a-line`
 Now we must use the same logic to obtain a **tiled** background in **two** directions by creating multiple **lines** of **tiles**. This time, the ecuations change to `$line-dx * $i + $tiling-x` and `$line-dy * $i + $tiling-y` for each `$line-x` and `$line-y` where:
 
 - `$line-dx` and `$line-dy` are the horizontal and vertical distances between each line pattern.
-- `$i` is the `@for` loop **iterator** used to increase the distance of the **tiling** from the container's top left corner.
+- `$i` is the `@for` loop **iterator** used to increase the distance of the **lines of tiles** from the container's top left corner.
 - `$tiling-x` and `$tiling-y` are the coordinates of the tiling's top left corner.
 
-The idea behind this is to create a **tiling** out of **lines** using the `tiled-background-positions-in-a-line()` function we just created and set the coordinates for each **line** as the **iteraror** increases so we don't have to write the same function over and over again to get more than one line of `background-images`:
+The idea behind this is to create a **tiling** out of **lines** using the `tiling-line-positions()` function we just created and set the coordinates for each **line** as the **iteraror** increases so we don't have to write the same function over and over again to get more than one line of `background-position`:
 
 ```
-background-positions: tiled-background-positions-in-a-line($line-x: 0px,
-                                                           $line-y: 0px,
-                                                           $tile-dx: 568px,
-                                                           $tile-dy: 0px,
-                                                           $tiles: 3),
-                      tiled-background-positions-in-a-line($line-x: 0px,
-                                                           $line-y: 568px,
-                                                           $tile-dx: 568px,
-                                                           $tile-dy: 0px,
-                                                           $tiles: 3);
+background-positions: tiling-line-positions($line-x: 0px,
+                                            $line-y: 0px,
+                                            $tile-dx: 568px,
+                                            $tile-dy: 0px,
+                                            $tiles: 3),
+                      tiling-line-positions($line-x: 0px,
+                                            $line-y: 568px,
+                                            $tile-dx: 568px,
+                                            $tile-dy: 0px,
+                                            $tiles: 3);
 ```
 
-This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `tiled-background-positions` will make writing this much easier. It will be an improvement over `background-positions-in-a-line` by using it as a base to work upon, which means there won't be any reason to use it outside `tiled-background-positions()` anymore. That's why will append an **underscore** to its name to let other developers know that it's **private** and should not be used anywhere else: `_tiled-background-positions-in-a-line()`. With that out of the way, we can move on to creating our new function.
+This positions 3 images in a row next to each other without any gap in between and another 3 right below them also in a line. However, our new function called `tiling-positions` will make writing this much easier. It will be an improvement over `background-positions-in-a-line` by using it as a base to work upon, which means there won't be any reason to use it outside `tiling-positions()` anymore. That's why will append an **underscore** to its name to let other developers know that it's **private** and should not be used anywhere else: `_tiling-line-positions()`. With that out of the way, we can move on to creating our new function.
 
 ```scss
-@function tiled-background-positions($tiling-x: 0px,
-                       $tiling-y: 0px,
-                       $tile-dx: 0px,
-                       $tile-dy: 0px,
-                       $line-dx: 0px,
-                       $line-dy: 0px,
-                       $tiles-per-line: 1,
-                       $lines: 1) {
+@function tiling-positions($tiling-x: 0px,
+                           $tiling-y: 0px,
+                           $tile-dx: 0px,
+                           $tile-dy: 0px,
+                           $line-dx: 0px,
+                           $line-dy: 0px,
+                           $tiles-per-line: 1,
+                           $lines: 1) {
   $result: null;
 
   @for $i from 0 to $lines {
-    $result: $result, _tiled-background-positions-in-a-line(calc((#{$line-dx} * #{$i}) + #{$tiling-x}), calc((#{$line-dy} * #{$i}) + #{$tiling-y}), $tile-dx, $tile-dy, $tiles-per-image);
+    $result: $result, _tiling-line-positions(calc((#{$line-dx} * #{$i}) + #{$tiling-x}), calc((#{$line-dy} * #{$i}) + #{$tiling-y}), $tile-dx, $tile-dy, $tiles-per-image);
   }
 
   @return $result;
@@ -221,40 +221,40 @@ This positions 3 images in a row next to each other without any gap in between a
 And we can set the `background-positions` for the `grooves` like this:
 
 ```
-background-position: tiled-background-positions($tiling-x: 0px,
-                                    $tiling-y: 0px,
-                                    $tile-dx: 568px,
-                                    $tile-dy: 0px,
-                                    $line-dy: 568px,
-                                    $tiles-per-line: 3, $lines: 2);
+background-position: tiling-positions($tiling-x: 0px,
+                                      $tiling-y: 0px,
+                                      $tile-dx: 568px,
+                                      $tile-dy: 0px,
+                                      $line-dy: 568px,
+                                      $tiles-per-line: 3, $lines: 2);
 ```
 
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgjBxY" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (grooves)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgjBxY/">Tiled background with Sass (grooves)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-We will also use this very same function to remake the shading on the wood. The original SVG file consists of two symmetric shades with copies offseted horizontally by small margin, but the file we are using now has only those two symmetric shades. We will need to make three more copies for each side and change their sizes and positions to simulate the same effect. Since doing that would also leave empty gaps where there shouldn't be, we will need to increase their overall sizes too. This time however, two instances of `tiled-background-positions()` function are needed; one for each side.
+We will also use this very same function to remake the shading on the wood. The original SVG file consists of two symmetric shades with copies offseted horizontally by a small margin, but the file we are using now has only those two symmetric shades. We will need to make three more copies for each side and change their sizes and positions to simulate the same effect. Since doing that would also leave empty gaps where there shouldn't be, we will need to increase their overall sizes too. This time however, two instances of `tiling-positions()` are needed; one for each side.
 
 We first increase the number of image to `16` (a grid of `4 x 2` for each side).
 
 ```
-background-image: background-images($path-to-shades, 16);
+background-image: tiling-images($path-to-shades, 16);
 ```
 
 Then set the `background-position`s like these:
 
 ```
-background-position: tiled-background-positions($tiling-x: 12%,
-                                  $tiling-y: 0px,
-                                  $tile-dx: 14%,
-                                  $tile-dy: 0px,
-                                  $line-dy: $shade-height,
-                                  $tiles-per-lilne: 4, $lines: 2),
-                     tiled-background-positions($tiling-x: 88%,
-                                  $tiling-y: 0px,
-                                  $tile-dx: -14%,
-                                  $tile-dy: 0px,
-                                  $line-dy: $shade-height,
-                                  $tiles-per-lilne: 4, $lines: 2);
+background-position: tiling-positions($tiling-x: 12%,
+                                      $tiling-y: 0px,
+                                      $tile-dx: 14%,
+                                      $tile-dy: 0px,
+                                      $line-dy: $shade-height,
+                                      $tiles-per-lilne: 4, $lines: 2),
+                     tiling-positions($tiling-x: 88%,
+                                      $tiling-y: 0px,
+                                      $tile-dx: -14%,
+                                      $tile-dy: 0px,
+                                      $line-dy: $shade-height,
+                                      $tiles-per-lilne: 4, $lines: 2);
 ```
 
 <p data-height="265" data-theme-id="dark" data-slug-hash="LgeKqa" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (shades)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/LgeKqa/">Tiled background with Sass (shades)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
@@ -267,16 +267,16 @@ The **chains**, however, will present us a new problem. Both pair of chains (the
 The purpose of such an arragment is to create two lines of images, one for the links seen from the side and another for the ones seen from the front, and set their `background-size` to be double than that of its container so as to show only one view of the links at a time while using just a single SVG file.
 
 ```
-background-image: bkg-img($path-to-chain-link, 2);
+background-image: tiling-images($path-to-chain-link, 2);
 background-position: 0 calc(100% + 3px), 100% calc(100% + 43px);
 background-size: 200% $chain-link-height;
 ```
 
 The first link of each chain is the one seeen from the side. Since this is the first link in the SVG file from left to right, we set the fist `background-position` to be on the left, hence `x = 0`. On the other side, the second image is located on the right side of the file, so we set the position of the second image to be `100%`, that is `x = 100%`.
 
-As for their `y` coordinates, the tip of the side links should barely touch the bottom of the container so we add `3px` to `100%` to remove the empty gap in the SVG file. The same goes for the links seen from the fron, only this time the required amount is `-43px`.
+As for their `y` coordinates, the tip of the side links should barely touch the bottom of the container so we add `3px` to `100%` to remove the empty gap in the SVG file. The same goes for the links seen from the front, only this time the required amount is `-43px`.
 
-That being said, the links don't quite align yet. Their images get cut halfway through. This is because the **iterator** inside the **tiled-background-positions-in-a-line** function only increases by `1` and in this case, we need it to increase according to the formula `2 * $i - 1`, but alas, Sass doesn't have a feature to control a `@for` loop **iterator** directly. The answer however, is quite simple. Instead of trying to control the **iterator**, we just need to replace the `$i` in `$tile-dx * $i + $line-x` and `$tile-dy * $i + $line-y` by `$a * $i + $b` so that we get:
+That being said, the links don't quite align yet. Their images get cut halfway through. This is because the **iterator** inside `_tiling-line-positions()` only increases by `1` and in this case, we need it to increase according to the formula `2 * $i - 1`, but alas, Sass doesn't have a feature to control a `@for` loop **iterator** directly. The answer however, is quite simple. Instead of trying to control the **iterator**, we just need to replace the `$i` in `$tile-dx * $i + $line-x` and `$tile-dy * $i + $line-y` by `$a * $i + $b` so that we get:
 
 `$tile-dx * ($a * $i + $b) + $line-x`
 
@@ -284,7 +284,7 @@ and
 
 `$tile-dy * ($a * $i + $b) + $line-y`
 
-Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `tiled-tiled-background-positions-in-a-line()` and `tiled-background-positions()` functions to accept them.
+Where `$a` and `$b` are two new parameters to be set by the function's user and so we update both `_tiling-line-positions()` and `tiling-positions()` to include them as an option.
 
 It's time to put this new modification to the test starting with the top chains. As explained above, two lines of images are needed for each pair of chains. The one with the links seen from the side goes first because those must be rendered in front of the others (from the user's point of view). Since the SVG of the links already includes the empty gaps between them, the vertical distance between each `background-image`, that is `$tile-dy`, should be the same as the height of the SVG itself. It must be negative too, because it goes from bottom to top. The top chains should stick to the bottom, so the position of the entire line of images, or `$line-y` should start at `100% - $chain-link-height` plus `3px` for better positioning. For the purpose of this example, we will set to `10` the number of `$tiles` per line, but you can see I used a lot more in practice just to make sure the chains fit nicely even in crazy high resolution screens.
 
@@ -305,27 +305,27 @@ The first `@mixin` we will create is the one for the planks.
 @mixin planks-multiple-backgrounds($corner-width) {
   background-clip: padding-box;
   background-color: $color-planks-diffuse;
-  background-image: tiled-background-images($path-to-shades, 80),
-                    tiled-background-images($path-to-grooves, 100);
-  background-position: tiled-background-positions($tiling-x: 12%,
-                                                  $tiling-y: 0px,
-                                                  $tile-dx: 14%,
-                                                  $tile-dy: 0px,
-                                                  $line-dy: $shade-height,
-                                                  $tiles-per-lilne: 4, $lines: 10),
-                       tiled-background-positions($tiling-x: 88%,
-                                                  $tiling-y: 0px,
-                                                  $tile-dx: -14%,
-                                                  $tile-dy: 0px,
-                                                  $line-dy: $shade-height,
-                                                  $tiles-per-lilne: 4, $lines: 10),
-                       tiled-background-positions($tiling-x: 0px,
-                                                  $tiling-y: 0px,
-                                                  $tile-dx: $grooves-width,
-                                                  $tile-dy: 0px,
-                                                  $line-dy: $grooves-height,
-                                                  $tiles-per-lilne: 10,
-                                                  $lines: 10);
+  background-image: tiling-images($path-to-shades, 80),
+                    tiling-images($path-to-grooves, 100);
+  background-position: tiling-positions($tiling-x: 12%,
+                                        $tiling-y: 0px,
+                                        $tile-dx: 14%,
+                                        $tile-dy: 0px,
+                                        $line-dy: $shade-height,
+                                        $tiles-per-lilne: 4, $lines: 10),
+                       tiling-positions($tiling-x: 88%,
+                                        $tiling-y: 0px,
+                                        $tile-dx: -14%,
+                                        $tile-dy: 0px,
+                                        $line-dy: $shade-height,
+                                        $tiles-per-lilne: 4, $lines: 10),
+                       tiling-positions($tiling-x: 0px,
+                                        $tiling-y: 0px,
+                                        $tile-dx: $grooves-width,
+                                        $tile-dy: 0px,
+                                        $line-dy: $grooves-height,
+                                        $tiles-per-lilne: 10,
+                                        $lines: 10);
   background-size: background-sizes(200%, $shade-height, 80),
                    background-sizes($grooves-width, $grooves-height, 100);
   background-repeat: no-repeat;
@@ -336,33 +336,33 @@ The first `@mixin` we will create is the one for the planks.
 
 The only required argument is the `$corner-width` since this is what will be used to clip the `background-images` according to the type of board it is with the help of the `planks-cliip()` function we made earlier.
 
-Notice that this time I used a lot more images than in the previous examples; `10` lines of `4` images for the shades on each side, which amounts to a total of `80` images, and `10` lines of `10` images each for the grooves. As you might have realized, we could have created a more specific function for the shades, but I preferred not to avoid adding too many layers of abstraction and thus making it more difficult to understand how it all works.
+Notice that this time I used a lot more images than in the previous examples; `10` lines of `4` images for the shades on each side, which amounts to a total of `80` images, and `10` lines of `10` images each for the grooves. As you might have realized, we could have created a more specific function for the shades, but I preferred not to to avoid adding too many layers of abstraction and thus making it more difficult to understand how it all works.
 
 The second `@mixin` is the one for remaking the chains.
 
 ```scss
 @mixin chains-multiple-backgrounds($chain-link-height, $offset-y) {
-  background-image: tiled-background-images($path-to-chain-link, 20);
-  background-position: tiled-background-positions-in-a-line($line-x: 0px,
-                                                            $line-y: calc(100% + #{$offset-y}),
-                                                            $tile-dx: 0px,
-                                                            $tile-dy: -$chain-link-height,
-                                                            $tiles-per-lilne: 10),
-                       tiled-background-positions-in-a-line($line-x: 100%,
-                                                            $line-y: calc(100% + #{$offset-y} - #{$chain-link-height}),
-                                                            $tile-dx: 0px,
-                                                            $tile-dy: calc(#{-$chain-link-height} / 2),
-                                                            $a: 2,
-                                                            $b: -1,
-                                                            $tiles-per-lilne: 10);
+  background-image: tiling-images($path-to-chain-link, 20);
+  background-position: tiling-positions($line-x: 0px,
+                                        $line-y: calc(100% + #{$offset-y}),
+                                        $tile-dx: 0px,
+                                        $tile-dy: -$chain-link-height,
+                                        $tiles-per-lilne: 10),
+                       tiling-positions($line-x: 100%,
+                                        $line-y: calc(100% + #{$offset-y} - #{$chain-link-height}),
+                                        $tile-dx: 0px,
+                                        $tile-dy: calc(#{-$chain-link-height} / 2),
+                                        $a: 2,
+                                        $b: -1,
+                                        $tiles-per-lilne: 10);
   background-size: 200% $chain-link-height;
   background-repeat: no-repeat;
 }
 ```
 
-We will leave `$chain-link-height` and `$offset-y` as reuired parameters in case we make any modification to the graphics in the future.
+We will leave `$chain-link-height` and `$offset-y` as required parameters in case we make any modification to the graphics in the future.
 
-With the `@mixin`s completed and ready to roll we can finally the issue of alpha transparency not being rendered properly in Safari 11.
+With the `@mixin`s completed and ready to roll we can finally fix the issue of alpha transparency not being rendered properly in Safari 11.
 
 For **bulletin** type board (inside the `&--type-bulletin` selector):
 
@@ -398,7 +398,7 @@ For the **sign** one (inside the `&--type-sign` selector):
 }
 ```
 
-With this last step he have covered all the issues worth fixing. All we need to do is to display a message prompting the user to update their browser or device if they don't support one of the required features. Since we might be doing this more than one time, a `@mixim` will come really in handy.
+With this last step we have covered all the issues worth fixing. All we need to do is to display a message prompting the user to update their browser or device if they don't support one of the required features. Since we might be doing this more than one time, a `@mixim` will come really in handy.
 
 ```scss
 @mixin full-page-msg($msg) {
@@ -414,9 +414,9 @@ With this last step he have covered all the issues worth fixing. All we need to 
 }
 ```
 
-The required features in case are CSS **calc()**, **gradients** and **generated content**. If one of them is not supported then the message itself will be appended to the HTML document itself so we use `@at-root` directive to keep this rule tidely packed inside `.board`. Of course, the board should be hidden completely.
+The required features in case are CSS **calc()**, **gradients** and **generated content**. If one of them is not supported, then the message will be appended to the HTML document itself so we use `@at-root` directive to keep this rule tidely packed inside `.board`. Of course, the board should be hidden completely.
 
-Also, Firefox 15 and older don't display SVG elements that use viewbox attribute, so in this case we have to use a combination of two Modernizr detects; **sandbox** and **cssmozoutlineradius** (for targeting Firefox specifically) to decide whether to display or not the board. Note that as a compromise Firefox 16 which does display the SVG properly but it will be skipped for convenience.
+Also, Firefox 15 and older don't display SVG elements that use viewbox attribute, so in this case we have to use a combination of two Modernizr detects; **sandbox** and **cssmozoutlineradius** (for targeting Firefox specifically) to decide whether to display or not the board. Note that by doing so, Firefox 16 will also be considered as an unsupported browser for our convinience.
 
 ```scss
 @at-root .no-csscalc,
@@ -436,7 +436,7 @@ Also, Firefox 15 and older don't display SVG elements that use viewbox attribute
 }
 ```
 
-Finally! With this we have succesfully made sure the site reacts properly to the user's browser capabilities by **degrading gracefully** if a feature is not supported or displaying a friendly message if not even that works. There is probably a lot more room for improvement but now we have a solid foundation to work upon. One of those improvements is something that is easy to forget when working with Sass. I'm talking about **error handling**. We will touch on this topic in the next post and with it give a proper closure to our adventure packed journey.
+Finally! With this we have succesfully made sure the site reacts properly to the user's browser capabilities by **degrading gracefully** if a feature is not supported or displaying a friendly message if not even that works. There is probably a lot more room for improvement but now we have a solid foundation to work upon. One of those improvements is something easy to overlook when working with Sass. I'm talking about **error handling**. We will touch on this topic in the next post and with it give a proper closure to our adventure packed journey.
 
 
 
