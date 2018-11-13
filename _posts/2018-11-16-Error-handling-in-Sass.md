@@ -37,48 +37,183 @@ It has two arguments: `$path` and `$amount`. The first one is required, meaning,
 }
 ```
 
-The `tiling-positions()` function is a little more complicated, though. It has a lot more variables, for one thing. It uses `_tiling-line-position()` as its engine but since it takes almost the same arguments and it is a **private** function, these don't need to be validated. We will perform the check inside `tiling-positions()`, displaying an `@error` with `invalid-arg()`, as mentioned earlier. This function takes `$function-name`, `$arg-name`, `$arg` and `$expected-args` as its arguments, so for each argument we should know its `$name`, `$value`, the `$check` to be performed, and the `$expected` arguments. This sounds like the perfect scenario for using Sass [maps] to **loop** through, don't you think?
+The `tiling-positions()` function is a little more complicated, though. It has a lot more variables, for one thing.
 
 ```scss
-$args: ("tiling-x": ("name": "$tiling-x",
-                     "value": $tiling-x,
-                     "check": // Do some check,
-                     "expected": // Valid arguments),
-        "tiling-y": ("name": "tiling-y",
-                     "value": $tiling-y,
-                     "check": // Do some check,
-                     "expected": // Valid arguments),
-        "tile-dx": ("name": "$tile-dx",
-                    "value": $tile-dx,
-                    "check": // Do some check,
-                    "expected": // Valid arguments),
-        "tile-dy": ("name": "$tile-dy",
-                    "value": $tile-dy,
-                    "check": // Do some check,
-                    "expected": // Valid arguments),
-        "a": ("name": "$a",
-              "value": $a,
-              "check": // Do some check,
-              "expected": $valid-a),
-        "b": ("name": "$b",
-              "value": $b,
-              "check": // Do some check,
-              "expected": // Valid arguments),
-        "tiles-per-line": ("name": "$tiles-per-line",
-                           "value": $tiles-per-line,
-                           "check": // Do some check,
-                           "expected": // Valid arguments),
-        "lines": ("name": "$lines",
-                  "value": $lines,
-                  "check": // Do some check,
-                  "expected": // Valid arguments),
-        );
+@function tiling-positions($tiling-x: 0px,
+                           $tiling-y: 0px,
+                           $tile-dx: 0px,
+                           $tile-dy: 0px,
+                           $line-dx: 0px,
+                           $line-dy: 0px,
+                           $a: 1,
+                           $b: 0,
+                           $tiles-per-line: 1,
+                           $lines: 1) {
+  $result: null;
+
+  @for $i from 0 to $lines {
+    $result: $result, _tiling-line-position($line-x: calc((#{$line-dx} * #{$i}) + #{$tiling-x}),
+                                            $line-y: calc((#{$line-dy} * #{$i}) + #{$tiling-y}),
+                                            $tile-dx: $tile-dx,
+                                            $tile-dy: $tile-dy,
+                                            $a: $a,
+                                            $b: $b,
+                                            $tiles: $tiles-per-line);
+  }
+
+  @return $result;
+}
 ```
 
+All of them will be used as `_tiling-line-position()`'s arguments except `$lines`, which is the total number of times to loop through. You might think we could perform the validation inside this function instead, but this wouldn't be a good a idea, really. And that is because the `@error` message would point to a **private** function that the user would have trouble finding out where it is from. Besides, since it is **private**, it shouldn't be used anywhere else, so there is no need for it to validate its arguments.
 
+Before moving on to validating the arguments, we need to think how to streamline this process as much as possible. After all, the validation will only perform a certain **check** for each argument and throw an `@error` along with the **function name**, **argument name**, **argument value** and a list of **expected arguments** if it is invalid or `true` if it is ok. In other words, each argument needs to have the following information:
+
+- **name**: the name of the argument
+- **value**: the value of the arguments
+- **check**: the check to be performed on the argument
+- **expected**: the expected arguments
+
+This makes the perfect oportunity to use Sass [maps] to create a two-dimensional map or "map of maps". The "parent" map will have each **argument** as a **key** and a **map** containing the correspondant details of each **argument** as its **value**.
+
+```scss
+$args: ("arg": ("name": "arg",
+                "value": $arg,
+                "check": boolean,
+                "expected": list)
+        )
+```
+
+With this we can now create a function called `check-args()` which will loop through this two-dimensional map and performs a check on each of them, throwing an `@error` if any of them is invalid or `@return`ing `@true` otherwise.
+
+```scss
+@function check-args($function-name, $args) {
+  @if (type-of($function-name) != "string") {
+    @error invalid-arg("check-args", "$function-name", $function-name,
+                       "string");
+  } @else if (type-of($args) != "map") {
+    @error invalid-arg("check-args", "$args", $args, "map");
+  }
+
+  @each $key, $val in $args {
+    @if (type-of($val) != "map") {
+      @error invalid-arg("check-args", "$args value", $val, "map");
+    } @else if (map-get($val, "check")) {
+      @error invalid-arg($function-name,
+                         "#{map-get($val, 'name')}",
+                         map-get($val, "value"),
+                         map-get($val, "expected"));
+    }
+  }
+
+  @return true;
+};
+```
+
+The functions is comprised of two part main parts; on the first part we make sure the arguments of `check-args()` itself are valid, that is `$function-name` and `$args`, using the Sass [`type-of()`] function. The former should be a `string` and the later a `map`. If everything is ok, then we check that the **key** and **value** are also ok with [`map-get()`]. If all of that is fine, we perform the check on each argument.
+
+All this work allow us to easily do all our tests in a simple `@if` clause.
+
+```scss
+@if (check-args("tiling-positions", $args)) {
+  // Loop through each line of background-positions.
+}
+```
+
+As for the check themselves, let's start from the first two arguments; `$tiling-x` and `$tiling-y`. If we take a quick look at the Mozilla's documentation on [`background-position`], we see that **each coordinate** can either have **one or two values** separated by a space, that is, the property might have up to **four values**. What those valid arguments are depends on the amount.
+
+- **One** value:
+  - **keyword**: left, center, right, top, left
+  - **global**: inherit, initial, unset
+  - **length**: 0, 30px, 23em, 2cm, etc
+  - **percentage**: 2%, 27%, etc
+  - **calc()**: although there is no mention of what `calc()` is considered, we need to take it into account as a special case.
+
+- **Two** values:
+  - **First** value:
+    - **keyword**: left, center, right, top, left
+  - **Second** value:
+    - **length**: 0, 30px, 23em, 2cm, etc
+
+The **keyword** value can be tested with Sass [`index()`]. This function returns the position of a value within a list or `null` if it doesn't find it. For this reason we will wrap it up with another function wich will actually return `true` or `false`.
+
+```scss
+@function is-in-list($value, $list) {
+  @if (index($list, $value)) {
+    @return true;
+  } @else {
+    @return false;
+  }
+}
+```
+
+And this function will be used to test if the argument is among the valid ones.
+
+```scss
+@function is-position-keyword($value) {
+  @return is-in-list($value, left right top bottom center);
+}
+```
+
+This might seem like doing extra work but it actually makes it a lot easier to read and understand. This is why a **function should always try to do one thing, and one thing only**. In the same manner, we create another check for the global values.
+
+```scss
+@function is-global($value) {
+  @return is-in-list($value, initial inherit unset);
+}
+```
+
+A **length** value can be any **rational number that has units**. So, first we have to check if it is actually a number, with the help of Sass [`type-of()`].
+
+```scss
+@function is-number($value) {
+  @return type-of($value) == "number";
+}
+```
+
+And then use [`unitless()`] to see whether the argument has units or not.
+
+```scss
+@function has-units($value) {
+  @if (is-number($value)) {
+    @return not unitless($value);
+  } @else {
+    @return false;
+  }
+}
+```
+
+Testing for `0` is really easy and we already have a test for `calc()` called `is-calc()`, which we created for creating our `strip-calc()` function.
+
+With all these test ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions with the aid of Sass [`nth()`] function.
+
+```scss
+@function is-position($position) {
+  @if (length($position) == 1) {
+    // 1-value syntax.
+    @return is-position-keyword($position) or is-global($position)
+            or has-units($position) or ($position == 0) or is-calc($position);
+  } @else if (length($position) == 2) {
+    // 2-value syntax (edge offset).
+    @return is-position-keyword(nth($position, 1)) and
+            (has-units(nth($position, 2)) or
+            ($position == 0));
+  } @else {
+    // A valid <position> might only have 1 or 2 values.
+    @return false;
+  }
+}
+```
 
 
 
 [`background-image`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-image
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
 [maps]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#maps
+[`type-of()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#type_of-instance_method
+[`map-get()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#map_get-instance_method
+[`background-position`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-position
+[`index()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#index-instance_method
+[`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
+[`nth()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#nth-instance_method
