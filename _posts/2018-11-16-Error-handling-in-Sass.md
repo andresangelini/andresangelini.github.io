@@ -136,7 +136,7 @@ As for the check themselves, let's start from the first two arguments; `$tiling-
   - **Second** value:
     - **length**: 0, 30px, 23em, 2cm, etc
 
-The **keyword** value can be tested with Sass [`index()`]. This function returns the position of a value within a list or `null` if it doesn't find it. For this reason we will wrap it up with another function wich will actually return `true` or `false`.
+The **keyword** value can be tested with Sass [`index()`]. This function returns the position of a value within a list or `null` if it doesn't find it. For this reason, we will wrap it up with another function wich will actually return `true` or `false`.
 
 ```scss
 @function is-in-list($value, $list) {
@@ -151,8 +151,14 @@ The **keyword** value can be tested with Sass [`index()`]. This function returns
 And this function will be used to test if the argument is among the valid ones.
 
 ```scss
-@function is-position-keyword($value) {
-  @return is-in-list($value, left right top bottom center);
+@function is-position-keyword($axis, $value) {
+  @if ($axis == "x") {
+    @return is-in-list($value, left center right);
+  } @else if ($axis == "y") {
+    @return is-in-list($value, top center bottom);
+  } @else {
+    @return false;
+  }
 }
 ```
 
@@ -164,7 +170,7 @@ This might seem like doing extra work but it actually makes it a lot easier to r
 }
 ```
 
-A **length** value can be any **rational number that has units**. So, first we have to check if it is actually a number, with the help of Sass [`type-of()`].
+A **length** value can be any **rational number that has units**. So first, we have to check if it is actually a number, with the help of Sass [`type-of()`].
 
 ```scss
 @function is-number($value) {
@@ -184,19 +190,19 @@ And then use [`unitless()`] to see whether the argument has units or not.
 }
 ```
 
-Testing for `0` is really easy and we already have a test for `calc()` called `is-calc()`, which we created for creating our `strip-calc()` function.
+Testing for `0` is really easy and we already have a test for `calc()` called `is-calc()`, which we created for our `strip-calc()` function in the post [Getting Sassy with the board].
 
-With all these test ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions with the aid of Sass [`nth()`] function.
+With all these tests ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions with the aid of Sass [`nth()`] function.
 
 ```scss
-@function is-position($position) {
+@function is-position($axis, $position) {
   @if (length($position) == 1) {
     // 1-value syntax.
-    @return is-position-keyword($position) or is-global($position)
+    @return is-position-keyword($axis, $position) or is-global($position)
             or has-units($position) or ($position == 0) or is-calc($position);
   } @else if (length($position) == 2) {
     // 2-value syntax (edge offset).
-    @return is-position-keyword(nth($position, 1)) and
+    @return is-position-keyword($axis, nth($position, 1)) and
             (has-units(nth($position, 2)) or
             ($position == 0));
   } @else {
