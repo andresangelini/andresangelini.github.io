@@ -121,20 +121,16 @@ All this work allow us to easily do all our tests in a simple `@if` clause.
 }
 ```
 
-As for the check themselves, let's start from the first two arguments; `$tiling-x` and `$tiling-y`. If we take a quick look at the Mozilla's documentation on [`background-position`], we see that **each coordinate** can either have **one or two values** separated by a space, that is, the property might have up to **four values**. What those valid arguments are depends on the amount.
+As for the check themselves, let's start from the first two arguments; `$tiling-x` and `$tiling-y`. According to Mozilla's documentation on [`background-position`], there is a total of **six** possible values:
 
-- **One** value:
-  - **keyword**: left, center, right, top, left
-  - **global**: inherit, initial, unset
-  - **length**: 0, 30px, 23em, 2cm, etc
-  - **percentage**: 2%, 27%, etc
-  - **calc()**: although there is no mention of what `calc()` is considered, we need to take it into account as a special case.
+- **keyword**: `left`, `center` or `right` for `x` or `top`, `center` or `bottom` for `y`.
+- **percentage**: any percentage value such as `3%`, `20%`, etc.
+- **length**: any rational number such as `30px`, `23em`, `2cm`, etc. `0` is the only value that might or might not use units.
+- **edge offset**: a value pair comprised of a **keyword** and a **length** such as `left 45px`, `center 11em` or `bottom 100cm`.
+- **global**: `inherit`, `initial` or `unset`.
+- **calc()**: although there is no mention of what `calc()` is considered to be, we need to take it into account as a special case.
 
-- **Two** values:
-  - **First** value:
-    - **keyword**: left, center, right, top, left
-  - **Second** value:
-    - **length**: 0, 30px, 23em, 2cm, etc
+The best way to approach this is to create a test for each one of these possibilities so that we can later use logical operators in a function for testing whether a value is a valid position.
 
 The **keyword** value can be tested with Sass [`index()`]. This function returns the position of a value within a list or `null` if it doesn't find it. For this reason, we will wrap it up with another function wich will actually return `true` or `false`.
 
@@ -162,7 +158,34 @@ And this function will be used to test if the argument is among the valid ones.
 }
 ```
 
-This might seem like doing extra work but it actually makes it a lot easier to read and understand. This is why a **function should always try to do one thing, and one thing only**. In the same manner, we create another check for the global values.
+This might seem like doing extra work but it actually makes it a lot easier to read and understand. This is why a **function should always try to do one thing, and one thing only**.
+
+Now let's create another function for validating **percentages**, which must be any rational number with a `%` appended to it. We can easily test if a value is a rational number with the help of Sass [`unitless()`]. However, Sass considers `%`, as well as any other **string** as a **unit**, so if you pass any **percentage** value, [`unitless()`] will actually return `false`. This is why we need to invert the result with `not unitless()`. Then, we can exclude non-percentage value using Sass [`unit()`].
+
+```scss
+@function is-percentage($value) {
+  @return not unitless($value) and unit($value) == "%";
+}
+```
+
+Naturally, when testing for a **length** we need to make sure the value is a rational number too with units but a percentage or `0`.
+
+```scss
+@function is-length($value) {
+  @return not unitless($value) and unit($value) != "%" or $value == 0;
+}
+```  
+
+And now we can test whether a value is an **edge offset**.
+
+```scss
+@function is-edge-offset($axis, $value) {
+  @return length($value) == 2 and is-position-keyword($axis, nth($value, 1)) and
+          is-length(nth($value, 2));
+}
+```
+
+In the same manner, we create another check for the global values.
 
 ```scss
 @function is-global($value) {
@@ -170,27 +193,7 @@ This might seem like doing extra work but it actually makes it a lot easier to r
 }
 ```
 
-A **length** value can be any **rational number that has units**. So first, we have to check if it is actually a number, with the help of Sass [`type-of()`].
-
-```scss
-@function is-number($value) {
-  @return type-of($value) == "number";
-}
-```
-
-And then use [`unitless()`] to see whether the argument has units or not.
-
-```scss
-@function has-units($value) {
-  @if (is-number($value)) {
-    @return not unitless($value);
-  } @else {
-    @return false;
-  }
-}
-```
-
-Testing for `0` is really easy and we already have a test for `calc()` called `is-calc()`, which we created for our `strip-calc()` function in the post [Getting Sassy with the board].
+We already have a test for `calc()` called `is-calc()`, which we created for our `strip-calc()` function in the post [Getting Sassy with the board].
 
 With all these tests ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions with the aid of Sass [`nth()`] function.
 
@@ -223,3 +226,4 @@ With all these tests ready, we can move on to creating an `is-position()` functi
 [`index()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#index-instance_method
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
 [`nth()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#nth-instance_method
+[`unit()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unit-instance_method
