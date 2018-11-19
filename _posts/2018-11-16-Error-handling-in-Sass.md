@@ -130,7 +130,7 @@ As for the check themselves, let's start from the first two arguments; `$tiling-
 - **global**: `inherit`, `initial` or `unset`.
 - **calc()**: although there is no mention of what `calc()` is considered to be, we need to take it into account as a special case.
 
-The best way to approach this is to create a test for each one of these possibilities so that we can later use logical operators in a function for testing whether a value is a valid position.
+The best way to approach this is to create a function whose only purpose is to return a **boolean** for each one of these possibilities so that we can later use them in conjunction with logical operators to validate the values for positioning the tiling. However, some of the test are so simply that you might be tempted to think they are not worth it. Why should we bother, right? Well, because we should always strive to maintain our code as clean and as readible possible, and reading a set of simple `true` or `false` questions is definitely easy enough. You will see this in action soon but, for now, let's create the first one.
 
 The **keyword** value can be tested with Sass [`index()`]. This function returns the position of a value within a list or `null` if it doesn't find it. For this reason, we will wrap it up with another function wich will actually return `true` or `false`.
 
@@ -168,7 +168,7 @@ Now let's create another function for validating **percentages**, which must be 
 }
 ```
 
-Naturally, when testing for a **length** we need to make sure the value is a rational number too with units but a percentage or `0`.
+A **length** must be any rational number, including `0`, and must have units, but it is not a percentage.
 
 ```scss
 @function is-length($value) {
@@ -199,23 +199,101 @@ With all these tests ready, we can move on to creating an `is-position()` functi
 
 ```scss
 @function is-position($axis, $position) {
-  @if (length($position) == 1) {
-    // 1-value syntax.
-    @return is-position-keyword($axis, $position) or is-global($position)
-            or has-units($position) or ($position == 0) or is-calc($position);
-  } @else if (length($position) == 2) {
-    // 2-value syntax (edge offset).
-    @return is-position-keyword($axis, nth($position, 1)) and
-            (has-units(nth($position, 2)) or
-            ($position == 0));
-  } @else {
-    // A valid <position> might only have 1 or 2 values.
-    @return false;
-  }
+  @return is-position-keyword($axis, $position) or
+          is-percentage($position) or
+          is-length($position) or
+          is-edge-offset($axis, $position) or
+          is-global($position) or
+          is-calc($position);
 }
 ```
 
+And then do the same for `$tile-dx`, `$tile-dy`, `$line-dx` and `$line-dy`.
 
+```scss
+@function is-delta($delta) {
+  @return is-percentage($delta) or is-length($delta);
+}
+```
+
+I hope you see how easy it becomes to read and understand these type of functions when you write them as `true` or `false` questions. They undeniably go a long way toward helping us write cleaner code. As a testament of that, testing the rest of the arguments now results trivial.
+
+First, we define lists of valid values at the begining of `tiling-positions()` and then we create the **two dimensional map** of arguments to be passed through `check-arg()`.
+
+```scss
+@function tiling-positions($tiling-x: 0px,
+                           $tiling-y: 0px,
+                           $tile-dx: 0px,
+                           $tile-dy: 0px,
+                           $line-dx: 0px,
+                           $line-dy: 0px,
+                           $a: 1,
+                           $b: 0,
+                           $tiles-per-line: 1,
+                           $lines: 1) {
+
+  $result: null;
+  $valid-positions: "keyword", "<percentage>", "<length>", "edge offset", "global", "calc()";
+  $valid-deltas: "<percentage>", "<length>";
+  $valid-amounts: "non 0 integer";
+
+  $args: ("x": ("name": "$tiling-x",
+                "value": $tiling-x,
+                "check": is-position("x", $tiling-x),
+                "expected": $valid-positions),
+          "y": ("name": "$tiling-y",
+                "value": $tiling-y,
+                "check": is-position("y", $tiling-y),
+                "expected": $valid-positions),
+          "tile-dx": ("name": "$tile-dx",
+                      "value": $tile-dx,
+                      "check": is-delta($tile-dx),
+                      "expected": $valid-deltas),
+          "tile-dy": ("name": "$tile-dy",
+                      "value": $tile-dy,
+                      "check": is-delta($tile-dy),
+                      "expected": $valid-deltas),
+          "line-dx": ("name": "$line-dx",
+                      "value": $line-dx,
+                      "check": is-delta($line-dx),
+                      "expected": $valid-deltas),
+          "line-dy": ("name": "$line-dy",
+                      "value": $line-dy,
+                      "check": is-delta($line-dy),
+                      "expected": $valid-deltas),
+          "a": ("name": "$a",
+                      "value": $a,
+                      "check": unitless($a),
+                      "expected": "<number>"),
+          "b": ("name": "$b",
+                      "value": $b,
+                      "check": unitless($b),
+                      "expected": "<number>"),
+          "tiles-per-line": ("name": "$tiles-per-line",
+                             "value": $tiles-per-line,
+                             "check": unitless($tiles-per-line),
+                             "expected": $valid-amounts),
+          "lines": ("name": "$lines",
+                            "value": $lines,
+                            "check": unitless($lines),
+                            "expected": $valid-amounts),
+          );
+
+  // Check if there is any invalid argument and if so, throw an error.
+  // Otherwise prepare oue result.
+  @if (check-args("background-positions", $args)) {
+    @for $i from 0 to $tiles {
+      $result: $result, calc((#{$tile-dx} * (#{$a} * #{$i} + #{$b})) + #{$line-x}) +
+      " " +
+      calc((#{$tile-dy} * (#{$a} * #{$i} + #{$b})) + #{$line-y});
+    }
+  }
+
+  @return $result;
+}
+```
+
+The resulting function is certainly bulkier than before, but what is making that bulk is the necessary details for each argument stored in `$args` and not a bunch of never ending conditional statements chained together made up of even more obscure deep nested conditionals.
 
 [`background-image`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-image
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
