@@ -147,18 +147,32 @@ The **keyword** value can be tested with Sass [`index()`]. This function returns
 And this function will be used to test if the argument is among the valid ones.
 
 ```scss
-@function is-position-keyword($axis, $value) {
-  @if ($axis == "x") {
-    @return is-in-list($value, left center right);
-  } @else if ($axis == "y") {
-    @return is-in-list($value, top center bottom);
-  } @else {
-    @return false;
-  }
+@function is-position-keyword($value) {
+  @return is-in-list($value, left right top bottom center);
 }
 ```
 
 This might seem like doing extra work but it actually makes it a lot easier to read and understand. This is why a **function should always try to do one thing, and one thing only**.
+
+But what happens if, let's say, `$tiling-x` is `left 150px` and `$tile-dx` is `20px`? You can't do any operations with **keywords**. We need to do some kind of converstion first in order to do calculations with them. We will use Sass [maps] once more to assign a **percentage** value for each **keyword**.
+
+```scss
+@function keyword-to-percentage($keyword) {
+  $keywords: (
+    left: 0,
+    right: 100%,
+    top: 0,
+    bottom: 100%,
+    center: 50%
+  );
+
+  @if (map-has-key($keywords, $keyword)) {
+    @return map-get($keywords, $keyword);
+  } @else {
+    @return $keyword;
+  }
+}
+```
 
 Now let's create another function for validating **percentages**, which must be any rational number with a `%` appended to it. We can easily test if a value is a rational number with the help of Sass [`unitless()`]. However, Sass considers `%`, as well as any other **string** as a **unit**, so if you pass any **percentage** value, [`unitless()`] will actually return `false`. This is why we need to invert the result with `not unitless()`. Then, we can exclude non-percentage value using Sass [`unit()`].
 
@@ -179,8 +193,8 @@ A **length** must be any rational number, including `0`, and must have units, bu
 And now we can test whether a value is an **edge offset**.
 
 ```scss
-@function is-edge-offset($axis, $value) {
-  @return length($value) == 2 and is-position-keyword($axis, nth($value, 1)) and
+@function is-edge-offset($value) {
+  @return length($value) == 2 and is-position-keyword(nth($value, 1)) and
           is-length(nth($value, 2));
 }
 ```
@@ -198,11 +212,11 @@ We already have a test for `calc()` called `is-calc()`, which we created for our
 With all these tests ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions with the aid of Sass [`nth()`] function.
 
 ```scss
-@function is-position($axis, $position) {
-  @return is-position-keyword($axis, $position) or
+@function is-position($position) {
+  @return is-position-keyword($position) or
           is-percentage($position) or
           is-length($position) or
-          is-edge-offset($axis, $position) or
+          is-edge-offset($position) or
           is-global($position) or
           is-calc($position);
 }
@@ -239,11 +253,11 @@ First, we define lists of valid values at the begining of `tiling-positions()` a
 
   $args: ("x": ("name": "$tiling-x",
                 "value": $tiling-x,
-                "check": is-position("x", $tiling-x),
+                "check": is-position($tiling-x),
                 "expected": $valid-positions),
           "y": ("name": "$tiling-y",
                 "value": $tiling-y,
-                "check": is-position("y", $tiling-y),
+                "check": is-position($tiling-y),
                 "expected": $valid-positions),
           "tile-dx": ("name": "$tile-dx",
                       "value": $tile-dx,
@@ -293,7 +307,7 @@ First, we define lists of valid values at the begining of `tiling-positions()` a
 }
 ```
 
-The resulting function is certainly bulkier than before, but what is making that bulk is the necessary details for each argument stored in `$args` and not a bunch of never ending conditional statements chained together made up of even more obscure deep nested conditionals.
+The resulting function is certainly bulkier than before, but this is due to the `args` map which contains all the information needed to validate each argument. Not only does this makes modifying the conditions easier but it also saves from creating a never ending chain of obscure conditional statements.
 
 [`background-image`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-image
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
