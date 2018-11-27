@@ -99,7 +99,7 @@ With this we can now create a function called `check-args()` which will loop thr
   @each $key, $val in $args {
     @if (type-of($val) != "map") {
       @error invalid-arg("check-args", "$args value", $val, "map");
-    } @else if (map-get($val, "check")) {
+    } @else if (map-get($val, "check") == false) {
       @error invalid-arg($function-name,
                          "#{map-get($val, 'name')}",
                          map-get($val, "value"),
@@ -152,6 +152,14 @@ And this function will be used to test if the argument is among the valid ones.
 }
 ```
 
+As well as for checking if it is a global value.
+
+```scss
+@function is-global($value) {
+  @return is-in-list($value, initial inherit unset);
+}
+```
+
 This might seem like doing extra work but it actually makes it a lot easier to read and understand. This is why a **function should always try to do one thing, and one thing only**.
 
 But what happens if, let's say, `$tiling-x` is `left 150px` and `$tile-dx` is `20px`? You can't do any operations with **keywords**. We need to do some kind of converstion first in order to do calculations with them. We will use Sass [maps] once more to assign a **percentage** value for each **keyword**.
@@ -174,42 +182,83 @@ But what happens if, let's say, `$tiling-x` is `left 150px` and `$tile-dx` is `2
 }
 ```
 
-Now let's create another function for validating **percentages**, which must be any rational number with a `%` appended to it. We can easily test if a value is a rational number with the help of Sass [`unitless()`]. However, Sass considers `%`, as well as any other **string** as a **unit**, so if you pass any **percentage** value, [`unitless()`] will actually return `false`. This is why we need to invert the result with `not unitless()`. Then, we can exclude non-percentage value using Sass [`unit()`].
+We can expand on this to make another one for converting **edge offset** and **keyword** values into a **length** or **calc()**, or do nothing otherwise.
+
+```scss
+@function quantify-position($position) {
+  $edge-offsets: null;
+
+  @if (is-position-keyword($position)) {
+    @return keyword-to-percentage($position);
+  } @else if (is-edge-offset($position)) {
+    $edge-offsets: (
+      left: nth($position, 2),
+      right: calc(100% - #{nth($position, 2)}),
+      top: nth($position, 2),
+      bottom: calc(100% - #{nth($position, 2)}),
+    );
+
+    @return map-get($edge-offsets, nth($position, 1));
+  }@else {
+    @return $position;
+  }
+}
+```
+
+Now let's create another function for validating **percentages**, which must be any rational number with a `%` appended to it. We can easily test if a value is a rational number with the help of Sass [`type-of()`], which we will wrap in a new function called `is-number()` for easier reading.
+
+```scss
+@function is-number($value) {
+  @return type-of($value) == "number";
+}
+```
+
+Now we can test if the value has a `%` appended to it with Sass [`unit()`].
 
 ```scss
 @function is-percentage($value) {
-  @return not unitless($value) and unit($value) == "%";
+  @if (is-number($value)) {
+    @return unit($value) == "%";
+  } @else {
+    @return false;
+  }
 }
 ```
+
+It is important to remember that these boolean funcitons **should only return true or false**, even if the argument is the wrong type. In other words, they should never throw any `@error`. Our `check-args()` function will the one doing of that.
 
 A **length** must be any rational number, including `0`, and must have units, but it is not a percentage.
 
 ```scss
 @function is-length($value) {
-  @return not unitless($value) and unit($value) != "%" or $value == 0;
+  @if (is-number($value)) {
+    @return unit($value) != "%" or $value == 0;
+  } @else {
+    @return false;
+  }
 }
 ```  
 
-And now we can test whether a value is an **edge offset**.
+And now we can test whether a value is an **edge offset**. Thanks to our previous efforts, the code here should be quite self-explanatory.
 
 ```scss
 @function is-edge-offset($value) {
-  @return length($value) == 2 and is-position-keyword(nth($value, 1)) and
+  @return length($value) == 2 and
+          is-position-keyword(nth($value, 1)) and
+          nth($value, 1) != "center" and
           is-length(nth($value, 2));
 }
 ```
 
-In the same manner, we create another check for the global values.
+We already have a test for `calc()` called `is-calc()`, which we created for our `strip-calc()` function in the post [Getting Sassy with the board]. But let us include it, just in case you forgot.
 
 ```scss
-@function is-global($value) {
-  @return is-in-list($value, initial inherit unset);
+@function is-calc($value) {
+  @return str_slice("#{$value}", 0, 4) == "calc";
 }
 ```
 
-We already have a test for `calc()` called `is-calc()`, which we created for our `strip-calc()` function in the post [Getting Sassy with the board].
-
-With all these tests ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions with the aid of Sass [`nth()`] function.
+With all these tests ready, we can move on to creating an `is-position()` function to test if `$tiling-x` and `$tiling-y` are valid positions.
 
 ```scss
 @function is-position($position) {
@@ -222,11 +271,49 @@ With all these tests ready, we can move on to creating an `is-position()` functi
 }
 ```
 
-And then do the same for `$tile-dx`, `$tile-dy`, `$line-dx` and `$line-dy`.
+Validating `$tile-dx`, `$tile-dy`, `$line-dx` and `$line-dy`, on the other hand, is much more simpler.
 
 ```scss
 @function is-delta($delta) {
   @return is-percentage($delta) or is-length($delta);
+}
+```
+
+As for `$a` and `$b` used to modifiy **$i**, we only need them to be any **rational number** without **units**, so the basically, the only two things we have to ask are if it `is-number()`, which we already have, and if it `has-units()`.
+
+```scss
+@function has-units($value) {
+  @if (is-number($value)) {
+    @return not unitless($value);
+  } @else {
+    @return false;
+  }
+}
+```
+
+One thing to note here is that Sass [`unitless()`] throws an `@error` if its argument is the wrong type, so we need to make sure the one we are passing to our `has-units()` function `is-number()`. Then, the validation for both `$a` and `$b` we will be the result of `is-number($value) and not has-units($value)` because an **string** doesn't have units after all, since is not even a number, so `not has-units($value)` alone would return `true`, which is wrong.
+
+Moving on, the only two arguments remaining are `$tiles-per-line` and `$lines`. Both of them need an **integer**...
+
+```scss
+@function is-integer($value) {
+  @if (is-number($value) and not has-units($value)) {
+    @return $value % 1 == 0;
+  } @else {
+    @return false;
+  }
+}
+```
+
+And bigger than `0`.
+
+```scss
+@function is-positive($value) {
+  @if (is-number($value)) {
+    @return $value > 0;
+  } @else {
+    @return false;
+  }
 }
 ```
 
@@ -245,17 +332,16 @@ First, we define lists of valid values at the begining of `tiling-positions()` a
                            $b: 0,
                            $tiles-per-line: 1,
                            $lines: 1) {
-
   $result: null;
   $valid-positions: "keyword", "<percentage>", "<length>", "edge offset", "global", "calc()";
   $valid-deltas: "<percentage>", "<length>";
-  $valid-amounts: "non 0 integer";
+  $valid-amounts: "integer > 0";
 
-  $args: ("x": ("name": "$tiling-x",
+  $args: ("tiling-x": ("name": "$tiling-x",
                 "value": $tiling-x,
                 "check": is-position($tiling-x),
                 "expected": $valid-positions),
-          "y": ("name": "$tiling-y",
+          "tiling-y": ("name": "$tiling-y",
                 "value": $tiling-y,
                 "check": is-position($tiling-y),
                 "expected": $valid-positions),
@@ -277,37 +363,41 @@ First, we define lists of valid values at the begining of `tiling-positions()` a
                       "expected": $valid-deltas),
           "a": ("name": "$a",
                       "value": $a,
-                      "check": unitless($a),
+                      "check": is-number($a) and not has-units($a),
                       "expected": "<number>"),
           "b": ("name": "$b",
                       "value": $b,
-                      "check": unitless($b),
+                      "check": is-number($b) and not has-units($b),
                       "expected": "<number>"),
           "tiles-per-line": ("name": "$tiles-per-line",
                              "value": $tiles-per-line,
-                             "check": unitless($tiles-per-line),
+                             "check": is-integer($tiles-per-line) and
+                                      is-positive($tiles-per-line),
                              "expected": $valid-amounts),
           "lines": ("name": "$lines",
                             "value": $lines,
-                            "check": unitless($lines),
+                            "check": is-integer($lines) and
+                                     is-positive($lines),
                             "expected": $valid-amounts),
           );
 
-  // Check if there is any invalid argument and if so, throw an error.
-  // Otherwise prepare oue result.
-  @if (check-args("background-positions", $args)) {
-    @for $i from 0 to $tiles {
-      $result: $result, calc((#{$tile-dx} * (#{$a} * #{$i} + #{$b})) + #{$line-x}) +
-      " " +
-      calc((#{$tile-dy} * (#{$a} * #{$i} + #{$b})) + #{$line-y});
-    }
+  @if (check-args("tiling-positions", $args)) {
+    @for $i from 0 to $lines {
+      $result: $result, _tiling-line-position($line-x: calc((#{$line-dx} * #{$i}) + #{strip-calc(quantify-position($tiling-x))}),
+                                              $line-y: calc((#{$line-dy} * #{$i}) + #{strip-calc(quantify-position($tiling-y))}),
+                                              $tile-dx: $tile-dx,
+                                              $tile-dy: $tile-dy,
+                                              $a: $a,
+                                              $b: $b,
+                                              $tiles: $tiles-per-line);
+      }
   }
 
   @return $result;
 }
 ```
 
-The resulting function is certainly bulkier than before, but this is due to the `args` map which contains all the information needed to validate each argument. Not only does this makes modifying the conditions easier but it also saves from creating a never ending chain of obscure conditional statements.
+The resulting function is certainly bulkier than before, but this is due to the `args` map which contains all the information needed to validate each argument. Not only does this makes modifying the conditions easier but it also saves from creating never ending chains of obscure conditional statements.
 
 [`background-image`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-image
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
