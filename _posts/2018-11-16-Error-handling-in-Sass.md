@@ -366,26 +366,129 @@ First, we define what the valid arguments are in separated lists at the begining
 
 The resulting function is certainly bulkier than before, but this is due to the `args` map which contains all the information needed to validate each argument. Not only does this makes modifying the conditions easier but it also saves us from creating never ending chains of obscure conditional statements.
 
-The next function to have **error handling** added to it will be `tiling-images()`. Luclky for us, it only has two arguments; `$path` and `$amount`. The first one doesn't need to be validated since any error in that would result in the image simply not loading, which the user would immediately notice. The `$amount`, however, could give some trouble, so let's make sure only **integers** bigger that `0` can be passed.
+The next function to have **error handling** added to will be `tiling-images()`.
 
 ```scss
-@function tiling-images($path, $amount: 1) {
+@function tiling-images($path, $amount) {
   $result: url($path);
 
-  @if (is-integer($amount) and is-positive($amount)) {
-    @for $i from 1 to $amount {
-      $result: $result, url($path);
-    }
-  } @else {
-    @error invalid-arg("background-images", "$amount", $amount, "integer");
+  @for $i from 1 to $amount {
+    $result: $result, url($path);
   }
 
   @return $result;
 }
 ```
 
+Luckly for us, it only has two arguments; `$path` and `$amount`. In the first one, we will leave up to the user to make sure the actual location is right. What we will be validating, however, is that this is done using the proper methods. The [`background-image`] accepts only two values: the **keyword** `none` or the [`<image>`] element. The later itself can be either an [`element()`] function or a [`<gradient>`] element, which also has four possible options: `linear-gradient()`, `radial-gradient()`, `repeating-linear-gradient()`, and lastly, `repeating-radial-gradient()`.
 
+Much in the same way we did for our previous function, we will create simple boolean functions for each one of these elements. The first thing we want to test for is if a given `$value` is a `string`, since that is what's used to determine the `$source` of a `background-image`.
 
+```scss
+@function is-string($value) {
+  @return type-of($value) == "string";
+}
+```
+
+The first thing a `background-image` accepts and the easiest to create a check for is the **keyword** `none`.
+
+```scss
+@function is-image-keyword($value) {
+  @if (is-string($value)) {
+    @return $value == "none";
+  } @else {
+    @return false;
+  }
+}
+```
+
+As we have seen, the `<image>` element accept many CSS functions, so the next thing we need to create is a check for determining whether a value is a function or not.
+
+```scss
+@function is-function($function, $value) {
+  @if (is-string($function) and is-string($value)) {
+    @return str-slice($value, 0, str-index($value, "(")) ==
+            str-slice($function, 0, str-index($function, "(")) and
+            str-slice($value, -1) == ")";
+  } @else {
+    @return false;
+  }
+}
+```
+
+After making sure both of this function's arguments are actually `strings`, we compare the first part up to the `(` of the `$value` to the same part of the target `$function` while also making sure the last character of `$value` is `)`.
+
+With this relatively simple function we can now create two more checks very easily.
+
+```scss
+@function is-url($value) {
+  @return is-function("url()", $value);
+}
+
+@function is-element($value) {
+  @return is-function("element()", $value);
+}
+```
+
+We will use a `list` for the `<gradient>` check because it cleaner and easier to understand than queuing a bunch of booleans.
+
+```scss
+@function is-gradient($value) {
+  $functions: "linear-gradient()", "radial-gradient()",
+              "repeating-linear-gradient()", "repeating-radial-gradient()";
+
+  @each $function in $functions {
+    @if (is-function($function, $value)) {
+      @return true;
+    }
+  }
+
+  @return false;
+}
+```
+
+Note that we don't even bother to check if the `$value` is a string. The `is-function()` function already does it for us.
+
+With these we already have all what's needed to create a check for `<image>`. Again, each of the inner functions already check if the `$value` is a `string`.
+
+```scss
+// Checks if a value is an <image> and returns a boolean.
+@function is-image($value) {
+  @return is-url($value) or
+          is-gradient($value) or
+          is-element($value);
+}
+```
+
+All that's left is adding the **error handling** to the `tiling-images()` function just like we did with `tiling-position()`.
+
+```scss
+@function tiling-images($source, $amount: 1) {
+  $result: unquote(#{$source});
+  $valid-sources: "none", "url()", "linear-gradient()", "element()";
+  $valid-amounts: "integer > 0";
+
+  $args: ("source": ("name": "$source",
+                   "value": $source,
+                   "check": is-image($source) or is-image-keyword($source),
+                   "expected": $valid-sources),
+          "amount": ("name": "$amount",
+                     "value": $amount,
+                     "check": is-integer($amount) and is-positive($amount),
+                     "expected": $valid-amounts)
+         );
+
+  @if (check-args("tiling-images", $args)) {
+    @for $i from 1 to $amount {
+      $result: $result, unquote($source);
+    }
+  }
+
+  @return $result;
+}
+```
+
+You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` before reaching any of our checks. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**, if the user were to pass a **quoted** string as a `$source`, that is.
 
 
 
@@ -396,6 +499,9 @@ The next function to have **error handling** added to it will be `tiling-images(
 [`type-of()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#type_of-instance_method
 [`map-get()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#map_get-instance_method
 [`background-position`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-position
+[`<image>`]: https://developer.mozilla.org/en-US/docs/Web/CSS/image
+[`<gradient>`]: https://developer.mozilla.org/en-US/docs/Web/CSS/gradient
+[`element()`]: https://developer.mozilla.org/en-US/docs/Web/CSS/element
 [`index()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#index-instance_method
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
 [`nth()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#nth-instance_method
