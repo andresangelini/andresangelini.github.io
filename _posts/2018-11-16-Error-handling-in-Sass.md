@@ -490,6 +490,53 @@ All that's left is adding the **error handling** to the `tiling-images()` functi
 
 You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` before reaching any of our checks. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**.
 
+The last function we need to work on is `tiling-sizes()`. The only difference wordthy of attention is that the `height` value shouldn't be passed if either of the **keyword**, `cover` and `contain`, is used.
+
+```scss
+@function tiling-sizes($width: inherit, $height: inherit, $amount: 1) {
+  $result: null;
+  $valid-sizes: "keyword", "global", "auto", "<length>", "<percentages>",
+                "calc()";
+  $valid-amounts: "integer > 0";
+
+  $function-name: "tiling-sizes";
+
+  $args: ("width": ("name": "$width",
+                     "value": $width,
+                     "check": is-size($width),
+                     "expected": $valid-sizes),
+          "height": ("name": "$height",
+                     "value": $height,
+                    "check": is-size($height),
+                    "expected": $valid-sizes),
+          "amount": ("name": "$amount",
+                    "value": $amount,
+                    "check": is-integer($amount) and is-positive($amount),
+                    "expected": $valid-amounts),
+          );
+
+  @if (check-args("tiling-sizes", $args)) {
+    @for $i from 1 through $amount {
+      @if (is-size-keyword($width)) {
+        @if ($height != inherit) {
+          @error "tiling-sizes: When a keyword is used, $height is not " +
+                 "needed. Was #{$height}, expected null.";
+        } @else {
+          $result: $result, unquote("#{$width}");
+        }
+      } @else {
+        $result: $result, unquote("#{$width}") unquote("#{$height}");
+      }
+    }
+  }
+
+  @return $result;
+}
+```
+
+Again, we make sure the CSS output is unquoted by interpolating `$width` and `$height` and passing them through Sass `unquote()`.
+
+
 
 
 
