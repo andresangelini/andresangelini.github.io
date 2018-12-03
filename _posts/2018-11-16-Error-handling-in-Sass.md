@@ -464,7 +464,7 @@ All that's left is adding the **error handling** to the `tiling-images()` functi
 
 ```scss
 @function tiling-images($source, $amount: 1) {
-  $result: unquote(#{$source});
+  $result: unquote("#{$source}");
   $valid-sources: "none", "url()", "linear-gradient()", "element()";
   $valid-amounts: "integer > 0";
 
@@ -488,7 +488,7 @@ All that's left is adding the **error handling** to the `tiling-images()` functi
 }
 ```
 
-You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` before reaching any of our checks. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**, if the user were to pass a **quoted** string as a `$source`, that is.
+You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` before reaching any of our checks. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**.
 
 
 
