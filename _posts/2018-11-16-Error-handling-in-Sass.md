@@ -194,12 +194,24 @@ Now we can test if the value has a `%` in it with Sass [`unit()`].
 
 It is important to remember that these boolean funcitons **should only return `true` or `false`**, even if the argument is the wrong type. In other words, they should never throw any `@error`. Our `check-args()` function will be the one in charge of doing of that.
 
+Anther thing we would like to know about a numeric `$value` is whether it has units or not. We can do this with the help of Sass `unitless()`. However, we will need to make sure said `$value` is an actual **number** becuase otherwise `unitless()` woud throw and `@error`.
+
+```scss
+@function has-units($value) {
+  @if (is-number($value)) {
+    @return not unitless($value);
+  } @else {
+    @return false;
+  }
+}
+```
+
 A **length** is any rational number that has units, including `0`, but is not a **percentage**.
 
 ```scss
 @function is-length($value) {
   @if (is-number($value)) {
-    @return unit($value) != "%" or $value == 0;
+    @return has-units($value) and unit($value) != "%" or $value == 0;
   } @else {
     @return false;
   }
@@ -246,19 +258,7 @@ Validating `$tile-dx`, `$tile-dy`, `$line-dx` and `$line-dy`, on the other hand,
 }
 ```
 
-As for `$a` and `$b`, which are used to modifiy `$i`, they must be **rational numbers** without **units**. So basically, the only two things we have to ask are if the value **is a number** and if **it has units**. We already have `is-number()`, so let's work on `has-units()`.
-
-```scss
-@function has-units($value) {
-  @if (is-number($value)) {
-    @return not unitless($value);
-  } @else {
-    @return false;
-  }
-}
-```
-
-One thing to note here is that Sass [`unitless()`] throws an `@error` if its argument is the wrong type, so we need to make sure the one we are passing to our `has-units()` function **is actually a number**. Then, the validation for both `$a` and `$b` will be the result of `is-number($value) and not has-units($value)` because a **string** doesn't have units after all, since it's not even a number, so `not has-units($value)` alone would return `true`, which is wrong.
+As for `$a` and `$b`, which are used to modifiy `$i`, they must be **rational numbers** without **units**. So basically, the only two things we have to ask are if the value `is-number($value) and not has-units($value)`.
 
 Moving on, the only two arguments remaining are `$tiles-per-line` and `$lines`. Both of them need an **integer**...
 
@@ -490,25 +490,58 @@ All that's left is adding the **error handling** to the `tiling-images()` functi
 
 You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` before reaching any of our checks. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**.
 
-The last function we need to work on is `tiling-sizes()`. The only difference wordthy of attention is that the `height` value shouldn't be passed if either of the **keyword**, `cover` and `contain`, is used.
+The last function we need to work on is `tiling-sizes()`. By taking a quick look at Mozilla's documentation on [`backgound-size`] we can see that this property admits **one-value syntax** or **two-value syntax**. With **one-value-syntax** the value refers to the `width` while the `height` automatically becomes `auto`, and with **two-value-syntax**, the first value is the `width` and the second the `height`. However, the **keyword** and **global** values can only be used wtih the **one-value-syntax**, so things like `cover 300px` would simply not work.
+
+We already have all the functions neccesary to create a check for a `background-size` value except for one to validate if it is a **keyword**, so let's start from there.
 
 ```scss
-@function tiling-sizes($width: inherit, $height: inherit, $amount: 1) {
+@function is-size-keyword($value) {
+  @return is-in-list($value, cover contain);
+}
+```  
+
+Our very last test represents the ultimate example of how sumply it becomes adding **error handling** to our custom functions when we modularize our code into very simple `true` or `false` functions.
+
+```scss
+@function are-dimensions($value) {
+  @if (length($value) == 1) {
+    @return is-size-keyword(nth($value, 1)) or
+            is-percentage(nth($value, 1)) or
+            is-length(nth($value, 1)) or
+            is-global(nth($value, 1)) or
+            is-calc(nth($value, 1)) or
+            nth($value, 1) == auto;
+  } @else if (length($value) == 2) {
+    @return (is-percentage(nth($value, 1)) or
+            is-length(nth($value, 1)) or
+            is-calc(nth($value, 1)) or
+            nth($value, 1) == auto) and
+            (is-percentage(nth($value, 2)) or
+            is-length(nth($value, 2)) or
+            is-calc(nth($value, 2)) or
+            nth($value, 2) == auto);
+  } @else {
+    @return false;
+  }
+}
+```
+
+By this point, this method should have become very familiar to us. The next and last function is basically the same as the other two; we define the **arguments** and its **properties** inside a **two dimensional map** and we check if they are valid **looping** through it before adding more `$value`s to the CSS property.
+
+```scss
+@function tiling-sizes($dimensions: inherit, $amount: 1) {
   $result: null;
-  $valid-sizes: "keyword", "global", "auto", "<length>", "<percentages>",
-                "calc()";
+  $valid-dimensions: "<keyword> or <width> <height> where <width> and " +
+                     "<height> are: <keyword>, <percentage>, <length>, " +
+                     "auto, global";
   $valid-amounts: "integer > 0";
 
   $function-name: "tiling-sizes";
 
-  $args: ("width": ("name": "$width",
-                     "value": $width,
-                     "check": is-size($width),
-                     "expected": $valid-sizes),
-          "height": ("name": "$height",
-                     "value": $height,
-                    "check": is-size($height),
-                    "expected": $valid-sizes),
+  $args: ("dimensions": ("name": "$dimensions",
+                     "value": $dimensions,
+                     "check": are-dimensions($dimensions),
+                     "expected": $valid-dimensions),
           "amount": ("name": "$amount",
                     "value": $amount,
                     "check": is-integer($amount) and is-positive($amount),
@@ -517,16 +550,7 @@ The last function we need to work on is `tiling-sizes()`. The only difference wo
 
   @if (check-args("tiling-sizes", $args)) {
     @for $i from 1 through $amount {
-      @if (is-size-keyword($width)) {
-        @if ($height != inherit) {
-          @error "tiling-sizes: When a keyword is used, $height is not " +
-                 "needed. Was #{$height}, expected null.";
-        } @else {
-          $result: $result, unquote("#{$width}");
-        }
-      } @else {
-        $result: $result, unquote("#{$width}") unquote("#{$height}");
-      }
+      $result: $result, unquote("#{$dimensions}");
     }
   }
 
@@ -546,6 +570,7 @@ Again, we make sure the CSS output is unquoted by interpolating `$width` and `$h
 [`type-of()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#type_of-instance_method
 [`map-get()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#map_get-instance_method
 [`background-position`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-position
+[`backgound-size`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-size
 [`<image>`]: https://developer.mozilla.org/en-US/docs/Web/CSS/image
 [`<gradient>`]: https://developer.mozilla.org/en-US/docs/Web/CSS/gradient
 [`element()`]: https://developer.mozilla.org/en-US/docs/Web/CSS/element
