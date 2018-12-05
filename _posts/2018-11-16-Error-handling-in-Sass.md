@@ -2,7 +2,9 @@ We have come a long way since we started our coding adventure into making a [Res
 
 And here we are, at the very end of our incredible journey with a fully funcitonal Responsive Medieval Board, just as we planned it. You might be thinking, what else could be possible do? Is there anything that have slipped our minds? Anything we could improve? Naturally, that depends on who you ask. But to me, there is, and it is actually quite important.
 
-Usually, when working with other languages, it is common practice to make sure your custom functions work the way you expect them to by applying some kind of **error handling**. This generally involves defining what kind of arguments are accepted and throwing an error message when an invalid one was passed to facilitate debugging our code. It is something easy to overlook when working with Sass, but it is really worth doing, even if it is code only we are ever going to see. But there is no better way to explain something than through an example, so let us start off with our freshly baked `tiling-positions()` function.
+## Dealing with `@error`s
+
+Usually, when working with other languages, it is common practice to make sure your custom functions work the way you expect them to by applying some kind of **error handling**. This generally involves defining what kind of arguments are accepted and throwing an error message when an invalid one was passed to facilitate debugging our code. It is something easy to overlook when working with Sass, but it is really worth doing, even if it is code only we are ever going to see. In fact, Sass has an actual **directive** for doing just that called [`@error`]; it **throws** a message as `string` and **stops** whatever function is running at the time. But there is no better way to explain something than through an example, so let us start off with our freshly baked `tiling-positions()` function.
 
 ```scss
 @function tiling-positions($tiling-x: 0px,
@@ -33,6 +35,8 @@ Usually, when working with other languages, it is common practice to make sure y
 
 It has a lot of arguments and all of them will be used as `_tiling-line-position()`'s arguments except `$lines`, which is the total number of times to loop through. You might think we could perform the validation inside this function instead, but this wouldn't be a good a idea. That is because the `@error` message would point to a **private** function that the user would have trouble finding out where it is from. Besides, since it is **private**, it shouldn't be used anywhere else, so there is no need for it to validate its arguments.
 
+## Logic vs Data
+
 Before moving on to validating the arguments, we need to think how to streamline this process as much as possible. After all, the validation will only perform a certain **check** for each argument and throw an `@error` along with the **function name**, **argument name**, **argument value** and a list of **expected arguments** if it is invalid or `true` if it is ok. In other words, each argument needs to have the following information:
 
 - **name**: the name of the argument.
@@ -50,7 +54,7 @@ $args: ("arg": ("name": "$arg",
         )
 ```
 
-With this we can now create a function called `check-args()` which will loop through this two-dimensional map and performs a check on each of them, throwing an `@error` if any of them is invalid or `@return`ing `@true` otherwise.
+With this we can now create a function called `check-args()` which will loop through this two-dimensional map and perform a check on each of them, throwing an `@error` if any of them is invalid or `@return`ing `true` otherwise.
 
 ```scss
 @function check-args($function-name, $args) {
@@ -76,7 +80,7 @@ With this we can now create a function called `check-args()` which will loop thr
 };
 ```
 
-The functions is comprised of two part main parts; on the first part we make sure the arguments of `check-args()` itself are valid, that is `$function-name` and `$args`, using the Sass [`type-of()`] function. The former should be a `string` and the later a `map`. If everything is ok, then we check that the **key** and **value** are also ok with [`map-get()`]. If all of that is fine, we perform the check on each argument.
+The function is comprised of two main parts; on the first part we make sure the arguments of `check-args()` itself are valid, that is `$function-name` and `$args`, using the Sass [`type-of()`] function. The former should be a `string` and the later a `map`. If everything is ok, then we check that the **key** and **value** are also ok with [`map-get()`]. If all of that is fine, we perform the check on each argument.
 
 All this work allow us to easily do all of our tests in a simple `@if` clause.
 
@@ -86,7 +90,9 @@ All this work allow us to easily do all of our tests in a simple `@if` clause.
 }
 ```
 
-With this, we are effectively making our code easier to understand by discriminating between **logic** and raw **data**. The former is the `check-args()` function executed in that single `@if` clause we just wrote there while the later is the `$args` map containing all the information pertaining the arguments. Having not done this, we would otherwise be writing an endless amount of conditional statements which we would soon find very difficult to understand, let alone debug it when something goes wrong.
+With this, we are effectively making our code easier to understand by discriminating between **logic** and raw **data**. The former is the `check-args()` function executed in that single `@if` clause we just wrote there while the later is the `$args` map containing all the information pertaining the arguments. Having not done this, we would otherwise be writing an endless amount of conditional statements which we would soon find very difficult to understand, let alone debug when something goes wrong.
+
+## Modularizing by asking simply `true` or `false` questions
 
 As for the check themselves, let's start from the first two arguments; `$tiling-x` and `$tiling-y`. According to Mozilla's documentation on [`background-position`], there is a total of **six** possible values:
 
@@ -97,7 +103,7 @@ As for the check themselves, let's start from the first two arguments; `$tiling-
 - **global**: `inherit`, `initial` or `unset`.
 - **calc()**: although there is no mention of what `calc()` is considered to be, we need to take it into account as a special case.
 
-The best way to approach this is to create a function whose only purpose is to return a **boolean** for each one of these possibilities so that we can later use them in conjunction with logical operators to validate the values for positioning the tiling. However, some of the tests are so simply that you might be tempted to think they are not worth it at all. Nonetheless, it is cerainly a lot easier to read something like `@if (is-string($value)) {...}` than `@if (type-of($value) == "string") {...}`. Not only is it much shorter, but it also allows us to encapsulate and isolate whatever we are testing in a very simple piece of code that can be reused again and again.
+The best way to approach this is to create a function whose only purpose is to return a **boolean** for each one of these possibilities so that we can later use them in conjunction with logical operators to validate the values for positioning the tiling. However, some of the tests are so simply that you might be tempted to think they are not worth it at all. Nonetheless, it is cerainly a lot easier to read something like `@if (is-string($value)) {...}` than `@if (type-of($value) == "string") {...}`. Not only is it much shorter, but it also allows us to **encapsulate** and **isolate** whatever we are testing in a very simple piece of code that can be reused again and again.
 
 Let's see how this works by creating a test for the **keyword** value using Sass [`index()`]. This function returns the position of a value within a list or `null` if it doesn't find it. For this reason, we will wrap it up with another function wich will actually return `true` or `false`.
 
@@ -127,9 +133,9 @@ As well as for checking if it is a global value.
 }
 ```
 
-You can see here that these functions are really simple. They **do one thing and one thing only**; return `true` or `false` and nothing more.
+You can see here that these functions are really simple. They **do one thing and one thing only**; `@return` `true` or `false` and nothing else.
 
-But what happens if, let's say, `$tiling-x` is `left 150px` and `$tile-dx` is `20px`? You can't do any operations with **keywords**. We need to do some kind of converstion first in order to do calculations with them. We will use Sass [maps] once more to assign a **percentage** value for each **keyword**.
+But what happens if, let's say, `$tiling-x` is `left 150px` and `$tile-dx` is `20px`? You can't do any operations with **keywords**. We need to do some kind of conversion first in order to do calculations with them. We will use Sass [maps] once more to assign a **percentage** value for each **keyword**.
 
 ```scss
 @function keyword-to-percentage($keyword) {
@@ -192,9 +198,9 @@ Now we can test if the value has a `%` in it with Sass [`unit()`].
 }
 ```
 
-It is important to remember that these boolean funcitons **should only return `true` or `false`**, even if the argument is the wrong type. In other words, they should never throw any `@error`. Our `check-args()` function will be the one in charge of doing of that.
+It is important to remember that these boolean functions **should only return `true` or `false`**, even if the argument is the wrong type. In other words, they should never throw any `@error`. Our `check-args()` function will be the one in charge of doing of that.
 
-Anther thing we would like to know about a numeric `$value` is whether it has units or not. We can do this with the help of Sass `unitless()`. However, we will need to make sure said `$value` is an actual **number** becuase otherwise `unitless()` woud throw and `@error`.
+Another thing we would like to know about a numeric `$value` is whether it has units or not. We can do this with the help of Sass `unitless()`. However, we will need to make sure said `$value` is an actual **number** becuase otherwise `unitless()` woud throw and `@error`.
 
 ```scss
 @function has-units($value) {
@@ -250,7 +256,7 @@ With all these tests ready, we can move on to creating an `is-position()` functi
 }
 ```
 
-Validating `$tile-dx`, `$tile-dy`, `$line-dx` and `$line-dy`, on the other hand, is much more simpler.
+Validating `$tile-dx`, `$tile-dy`, `$line-dx` and `$line-dy`, on the other hand, is even simpler.
 
 ```scss
 @function is-delta($delta) {
@@ -366,6 +372,8 @@ First, we define what the valid arguments are in separated lists at the begining
 
 The resulting function is certainly bulkier than before, but this is due to the `args` map which contains all the information needed to validate each argument. Not only does this makes modifying the conditions easier but it also saves us from creating never ending chains of obscure conditional statements.
 
+Also notice the slight change in the formula for `$line-x` and `$line-y`. We pass `$tiling-x` and `$tiling-y` through our newly created `quantify-position()` and pass the result of that to our old friend `strip-calc()` to make sure all **edge offset** and **keyword** values are converted to proper **lengths** or **calc()**, in which case `strip-calc()` will remove the `calc` part from it for better browser compatibility.
+
 The next function to have **error handling** added to will be `tiling-images()`.
 
 ```scss
@@ -380,9 +388,9 @@ The next function to have **error handling** added to will be `tiling-images()`.
 }
 ```
 
-Luckly for us, it only has two arguments; `$path` and `$amount`. In the first one, we will leave up to the user to make sure the actual location is right. What we will be validating, however, is that this is done using the proper methods. The [`background-image`] accepts only two values: the **keyword** `none` or the [`<image>`] element. The later itself can be either an [`element()`] function or a [`<gradient>`] element, which also has four possible options: `linear-gradient()`, `radial-gradient()`, `repeating-linear-gradient()`, and lastly, `repeating-radial-gradient()`.
+Luckly for us, it only has two arguments; `$path` and `$amount`. In the first one, we will leave up to the user to make sure the actual location is right. What we will be validating, though, is that this is done properly. The [`background-image`] accepts only two values: the **keyword** `none` or the [`<image>`] element. The later itself can be either an [`element()`] function or a [`<gradient>`] element, which also has four possible options: `linear-gradient()`, `radial-gradient()`, `repeating-linear-gradient()`, and lastly, `repeating-radial-gradient()`.
 
-Much in the same way we did for our previous function, we will create simple boolean functions for each one of these elements. The first thing we want to test for is if a given `$value` is a `string`, since that is what's used to determine the `$source` of a `background-image`.
+Much in the same way we did for the possible values in `tiling-positions()`, we will create some more boolean functions for these new ones too. The first thing we want to test for is if a given `$value` is a `string`, since that is what's used to determine the `$source` of a `background-image`.
 
 ```scss
 @function is-string($value) {
@@ -430,7 +438,7 @@ With this relatively simple function we can now create two more checks very easi
 }
 ```
 
-We will use a `list` for the `<gradient>` check because it cleaner and easier to understand than queuing a bunch of booleans.
+We will use a `list` for the `<gradient>` check because it is cleaner and easier to understand than queuing a bunch of booleans.
 
 ```scss
 @function is-gradient($value) {
@@ -449,10 +457,9 @@ We will use a `list` for the `<gradient>` check because it cleaner and easier to
 
 Note that we don't even bother to check if the `$value` is a string. The `is-function()` function already does it for us.
 
-With these we already have all what's needed to create a check for `<image>`. Again, each of the inner functions already check if the `$value` is a `string`.
+With these we already have all that's needed to create a check for `<image>`. Again, each of the inner functions already check if the `$value` is a `string`.
 
 ```scss
-// Checks if a value is an <image> and returns a boolean.
 @function is-image($value) {
   @return is-url($value) or
           is-gradient($value) or
@@ -460,7 +467,7 @@ With these we already have all what's needed to create a check for `<image>`. Ag
 }
 ```
 
-All that's left is adding the **error handling** to the `tiling-images()` function just like we did with `tiling-position()`.
+All that's left is adding the **error handling** to the `tiling-images()` function just like we did with `tiling-positions()`.
 
 ```scss
 @function tiling-images($source, $amount: 1) {
@@ -488,9 +495,9 @@ All that's left is adding the **error handling** to the `tiling-images()` functi
 }
 ```
 
-You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` before reaching any of our checks. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**.
+You can see that the structure of the function is the same. What changes is their **data**, that is, the **arguments** and naturally, the contents of the `map`. Pay attention to the `$result` value we capture at the begining, though. Contrary to `tiling-positions()`, this function accepts both **quoted** and **unquoted** `string`s, which means we need to make sure the final CSS output is **unquoted**. However, the Sass `unquote()` function raises an `@error` if its value is not a `string`. To solve this, we simply convert whatever the value may be to a `string` so that it can be **unquoted** by `unquote()` **before reaching any of our checks**. We also need to do the same when it's added to the previous `$result` in the `@for` loop, otherwise only the first `background-image` would be **unquoted**.
 
-The last function we need to work on is `tiling-sizes()`. By taking a quick look at Mozilla's documentation on [`backgound-size`] we can see that this property admits **one-value syntax** or **two-value syntax**. With **one-value-syntax** the value refers to the `width` while the `height` automatically becomes `auto`, and with **two-value-syntax**, the first value is the `width` and the second the `height`. However, the **keyword** and **global** values can only be used wtih the **one-value-syntax**, so things like `cover 300px` would simply not work.
+The last function we need to work on is `tiling-sizes()`. By taking a quick look at Mozilla's documentation on [`backgound-size`], we can see that this property admits **one-value syntax** or **two-value syntax**. With **one-value-syntax** the value refers to the `width` while the `height` automatically becomes `auto`, and with **two-value-syntax**, the first value is the `width` and the second the `height`. However, the **keyword** and **global** values can only be used wtih the **one-value-syntax**, so things like `cover 300px` would simply not work.
 
 We already have all the functions neccesary to create a check for a `background-size` value except for one to validate if it is a **keyword**, so let's start from there.
 
@@ -500,7 +507,7 @@ We already have all the functions neccesary to create a check for a `background-
 }
 ```  
 
-Our very last test represents the ultimate example of how sumply it becomes adding **error handling** to our custom functions when we modularize our code into very simple `true` or `false` functions.
+Our very last test represents the ultimate example of how easy it becomes adding **error handling** to our custom functions when we modularize our code into very simple `true` or `false` functions.
 
 ```scss
 @function are-dimensions($value) {
@@ -558,12 +565,19 @@ By this point, this method should have become very familiar to us. The next and 
 }
 ```
 
-Again, we make sure the CSS output is unquoted by interpolating `$width` and `$height` and passing them through Sass `unquote()`.
+Again, we make sure the CSS output is **unquoted** by interpolating `$dimensions` and passing it through Sass `unquote()`.
+
+Now that all of our functions have **error handling** incorporated to them, we can rest assured that whoever uses them will have a way to easily relize what went wrong and fix it very quickly, spending less time debugging and more coding.
+
+## Conclusion
+
+And that is it! We have finally arrived to the end of our very treacherous but trully rewarding journey. I hope you have enjoyed it as much as I have and perhaps even learned something new out of it. I can certanly say that it have changed the way I think about and write code. By bumping against walls and struggling each step of the way, I have come to realize the true importance of writing clean code by modularizing it in such a way that it is easy to mantain in the future, whether that will be you or other people. After all, it seems that is precisely when you try to explain something to others that you truly learn what you think you already knew.
 
 
 
 
 
+[`@error`]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#error
 [`background-image`]: https://developer.mozilla.org/en-US/docs/Web/CSS/background-image
 [`unitless()`]: http://sass-lang.com/documentation/Sass/Script/Functions.html#unitless-instance_method
 [maps]: http://sass-lang.com/documentation/file.SASS_REFERENCE.html#maps
