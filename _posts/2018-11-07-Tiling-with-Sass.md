@@ -297,6 +297,22 @@ The final result of our hard work looks as follows.
 <p data-height="265" data-theme-id="dark" data-slug-hash="MPqKBe" data-default-tab="css,result" data-user="andresangelini" data-pen-title="Tiled background with Sass (chains)" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/MPqKBe/">Tiled background with Sass (chains)</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
+There is one more important function that is still missing and that's the one for writing multiple `background-size`s. The reason is simply; different `background-image`s will require different `background-size`s. For example, we will need to set the `80` images of the **shades** to `200% $shade-height` while `100` of **grooves** will need to be set at `$grooves-width` for both `width` and `height`. However, this function will proove to be very easy to create.
+
+```scss
+@function tiling-sizes($dimensions: inherit, $amount: 1) {
+  $result: null;
+
+  @for $i from 1 through $amount {
+    $result: $result, $dimensions;
+  }
+
+  @return $result;
+}
+```
+
+It's basically a much simpler version of `tiling-positions()` since we will not be doing any weird operations with it, just `@return`ing multiple values.
+
 Just perfect! All we need to do now is wrap all this up with some `@mixin`s and we will be good to go.
 
 The first `@mixin` we will create is the one for the planks.
