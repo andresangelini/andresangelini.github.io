@@ -1,8 +1,31 @@
+This post is just one part of a larger story about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks][ch-1]
+2. [Making an SVG Stretch][ch-2]
+3. [Inverting SVG Elements][ch-3]
+4. [Rotating SVG Elements][ch-4]
+5. [Clipping SVG Elements][ch-5]
+6. [Improving Organization With Defs][ch-6]
+7. [Namespacing][ch-7]
+8. [Styling an SVG][ch-8]
+9. [Using SVG patterns][ch-9]
+10. [Clipping SVG Elements With Complex Shapes][ch-10]
+11. [Using an SVG stack With Fragment Identifiers][ch-11]
+12. [Getting Sassy With The Board][ch-12]
+13. [When Sass Met BEM][ch-13]
+14. [Browser Support For SVG Stacks][ch-14]
+15. [Sass Mixins For SVG Stacks][ch-15]
+16. [Combining Modernizr Detects][ch-16]
+17. [Tiling With Sass][ch-17]
+18. [Error Handling in Sass][ch-18]
+
 ## Browser suppor for SVG stacks
 
-Creating a responsive UI with a single SVG using SVG stacks it's one thing, but
+Creating a responsive UI with a single SVG using SVG stacks like the one we just finished in the [previous post][ch-13] is one thing, but
 making it actually work across a plethora of devices and broswers it's a whole
-different beast on its own. Of course, when we say "work" we mean that the site should be at least functinoal, regardless of its appearence. Even if a certain graphic cannot be displayed properly due to an incompatibility, for instance, the user should still be able to use the site without any hindrance. This is something I have intentionally avoided talking about because I thought it would be better to present the problem first, but since it plays a key role in developing a website it should always be part of the designing stage.
+different beast on its own. Of course, when we say "work" we mean that the site should be at least functinoal, regardless of its appearence. Even if a certain graphic cannot be displayed properly due to an incompatibility, for instance, the user should still be able to use the site without any hindrance. This is something I have intentionally avoided talking about because I thought it would be better to present the problem first, but since it plays a key role in developing a website it should always be a part of the designing stage.
 
 ## Progressive Enhancement and Graceful Degradation
 
@@ -121,8 +144,28 @@ And our HTML markup:
 <div class='board board--type-sign sign'></div>
 ```
 
-Now that we have a better idea of how to compansate for the lack of **detects** for a given feature, let's make a brief stop here to give our poor overloaded brains some time to digest and process all this amazing new knowledge we have just acquired. In the next post, we will introduce yet another Sass feature: **mixins**.
+Now that we have a better idea of how to compansate for the lack of **detects** for a given feature, let's make a brief stop here to give our poor overloaded brains some time to digest and process all this amazing new knowledge we have just acquired. In the [next post][ch-15], we will introduce yet another Sass feature: **mixins**.
 
+
+
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
 [Can I Use]: https://caniuse.com/
 [Cross Browser Testing]: https://crossbrowsertesting.com/
 [browser sniffing]: https://developer.mozilla.org/en-US/docs/Learn/Tools_and_testing/Cross_browser_testing/JavaScript#Using_bad_browser_sniffing_code
