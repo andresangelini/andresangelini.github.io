@@ -19,7 +19,7 @@ This is the final chapter about an alchemist's personal quest for **Making a Res
 15. [Sass Mixins For SVG Stacks][ch-15]
 16. [Combining Modernizr Detects][ch-16]
 17. [Tiling With Sass][ch-17]
-18. [**Error Handling in Sass**][ch-18]
+18. [Error Handling in Sass][ch-18]
 
 ## A Journey's End
 
@@ -601,24 +601,24 @@ And that is it! We have finally arrived to the end of our very treacherous but t
 
 
 
-[ch-1]: Making-a-responsive-medieval-board-with-SVG-stacks
-[ch-2]: Making-an-SVG-stretch
-[ch-3]: Inverting-SVG-elements
-[ch-4]: Rotating-SVG-elements
-[ch-5]: Clipping-SVG-elements
-[ch-6]: Improving-organization-with-defs
-[ch-7]: Namespacing
-[ch-8]: Styling-an-SVG
-[ch-9]: Using-SVG-patterns
-[ch-10]: Clipping-SVG-elements-with-complex-shapes
-[ch-11]: Using-an-SVG-stack-with-fragment-identifiers
-[ch-12]: Getting-Sassy-with-the-board
-[ch-13]: When-Sass-met-BEM
-[ch-14]: Browser-support-for-SVG-stacks
-[ch-15]: Sass-mixins-for-SVG-stacks
-[ch-16]: Combining-modernizr-detects
-[ch-17]: Tiling-with-Sass
-[ch-18]: Error-handling-in-Sass
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
 
 
 
