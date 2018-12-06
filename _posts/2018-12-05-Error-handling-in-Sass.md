@@ -1,4 +1,29 @@
-We have come a long way since we started our coding adventure into making a [Responsive Medieval Board With SVG Stacks]. We first stepped into SVG territory where we met its inhabitants in a new light that few people have rarely seen before. We found mysterious `<symbol>`s in its long forgotten ruins which we soon discovered were meant to help us `<def>`ine our plans so that you **Don't Repeat Yourslef**. They aided us to [improve our organization], and along with proper [Namespacing], lead us to journey through [SVG in style]. We also discovered the true meaning of its hidden `<pattern>`s, allowing us to [clip] through parts of the SVG and thus create more [complex shapes], which from then on, we could easily recognize thanks to using proper [fragment identifiers]. But just when we thought we would end up drowning in the muddy waters of our own code... [Sass!], a brave new Hero came along to our rescue. An he wasn't alone either. A friendly guy called [BEM] also saw us in a pinch and junped in to help. Under the warm of a wood fire and the soft melody of his old guitar, he shared many stories and told us about how the world was made of **Blocks**, **Elements** and **Modifiers**. And then it clicked! We realized we probably wouldn't be the only ones visiting these lands. We needed to pave the way and support other explorers who wished to browse through its many misteries. However, an important decision had to be made first; should we start from a simple trail and improve from there, or should we aim for the most beautiful path first and then add fixes as problems come along? It wasn't quite clear at the moment, but once we came to understand the true meaning of [Graceful Degradation], clearing out the many misconceptions around it, we immediately knew this was the best choice for us, and so we started working on it. We soon realized, though, that our methedologies for detecting those problems were getting old and rusty, leading ourselves to a potential maintenance nightmare. We needed to [modernizer] them, and that is exactly what we did, [`@mixin`g] it with some JavaScript when necesary. Of course, nothing is perfect in this world, so we arrived at the conclusion that combining two or more of these detections was the best course of action for us because it allowed us to work sooner on the actual fixes, such as [how to make a tiling without SVG `<pattern>`s or `background-repeat`].
+This is the final chapter about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You might read them in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks](2018-08-29-Making-a-responsive-medieval-board-with-SVG-stacks.md)
+2. [Making an SVG Stretch](2018-08-29-Making-an-SVG-stretch.md)
+3. [Inverting SVG Elements](2018-08-30-Inverting-SVG-elements.md)
+4. [Rotating SVG Elements](2018-08-30-Rotating-SVG-elements.md)
+5. [Clipping SVG Elements](2018-08-31-Clipping-SVG-elements.md)
+6. [Improving Organization With Defs](2018-08-31-Improving-organization-with-defs.md)
+7. [Namespacing](2018-08-31-Namespacing.md)
+8. [Styling an SVG](2018-08-31-Styling-an-SVG.md)
+9. [Using SVG patterns](2018-08-31-Using-SVG-patterns.md)
+10. [Clipping SVG Elements With Complex Shapes](2018-09-03-Clipping-SVG-elements-with-complex-shapes.md)
+11. [Using an SVG stack With Fragment Identifiers](2018-09-05-Using-an-SVG-stack-with-fragment-identifiers.md)
+12. [Getting Sassy With The Board](2018-09-11-Getting-Sassy-with-the-board.md)
+13. [When Sass Met BEM](2018-09-13-When-Sass-met-BEM.md)
+14. [Browser Support For SVG Stacks](2018-09-24-Browser-support-for-SVG-stacks.md)
+15. [Sass Mixins For SVG Stacks](2018-09-25-Sass-mixins-for-SVG-stacks.md)
+16. [Combining Modernizr Detects](2018-10-01-Combining-modernizr-detects.md)
+17. [Tiling With Sass](2018-11-07-Tiling-with-Sass.md)
+18. [Error Handling in Sass](2018-12-05-Error-handling-in-Sass.md)
+
+## A Journey's End
+
+We have come a long way since we started our coding adventure into [Making a Responsive Medieval Board With SVG Stacks]. We first stepped into SVG territory where we met its inhabitants in a new light that few people have rarely seen before. We found mysterious [`<symbol>`]s in its long forgotten ruins which we soon discovered were meant to help us `<def>`ine our plans so that you **Don't Repeat Yourslef**. They aided us to [improve our organization], and along with proper [Namespacing], lead us to journey through [SVG in style]. We also discovered the true meaning of its hidden [`<pattern>`]s, allowing us to [clip] through parts of the SVG and thus create more [complex shapes], which from then on, we could easily recognize thanks to using proper [fragment identifiers]. But just when we thought we would end up drowning in the muddy waters of our own code... [Sass]!, a brave new Hero came along to our rescue. An he wasn't alone either. A friendly guy called [BEM] also saw us in a pinch and junped in to help. Under the warm of a wood fire and the soft melody of his old guitar, he shared many stories and told us about how the world was made of **Blocks**, **Elements** and **Modifiers**. And then it clicked! We realized we probably wouldn't be the only ones visiting these lands. We needed to pave the way and support other explorers who wished to browse through its many misteries. However, an important decision had to be made first; should we start from a simple trail and improve from there, or should we aim for the most beautiful path first and then add fixes as problems come along? It wasn't quite clear at the moment, but once we came to understand the true meaning of [Graceful Degradation], clearing out the many misconceptions around it, we immediately knew this was the best choice for us, and so we started working on it. We soon realized, though, that our methedologies for detecting those problems were getting old and rusty, leading ourselves to a potential maintenance nightmare. We needed to [modenize] them, and that is exactly what we did, [`@mixin`g] it with some JavaScript when necesary. Of course, nothing is perfect in this world, so we arrived at the conclusion that [combining two or more of these detections] was the best course of action for us because it allowed us to work sooner on the actual fixes, such as [how to make a tiling without SVG `<pattern>`s or `background-repeat`].
 
 And here we are, at the very end of our incredible journey with a fully funcitonal Responsive Medieval Board, just as we planned it. You might be thinking, what else could be possible do? Is there anything that have slipped our minds? Anything we could improve? Naturally, that depends on who you ask. But to me, there is, and it is actually quite important.
 
@@ -572,6 +597,26 @@ Now that all of our functions have **error handling** incorporated to them, we c
 ## Conclusion
 
 And that is it! We have finally arrived to the end of our very treacherous but trully rewarding journey. I hope you have enjoyed it as much as I have and perhaps even learned something new out of it. I can certanly say that it have changed the way I think about and write code. By bumping against walls and struggling each step of the way, I have come to realize the true importance of writing clean code by modularizing it in such a way that it is easy to mantain in the future, whether that will be you or other people. After all, it seems that is precisely when you try to explain something to others that you truly learn what you think you already knew.
+
+
+
+
+[Making a Responsive Medieval Board With SVG Stacks]: 2018-08-29-Making-a-responsive-medieval-board-with-SVG-stacks.md
+[`<symbol>`]: 2018-08-29-Making-an-SVG-stretch.md
+[improve our organization]: 2018-08-31-Improving-organization-with-defs.md
+[Namespacing]: 2018-08-31-Namespacing.md
+[SVG in style]: 2018-08-31-Styling-an-SVG.md
+[`<pattern>`]: 2018-08-31-Using-SVG-patterns.md
+[clip]: 2018-08-31-Clipping-SVG-elements.md
+[complex shapes]: 2018-09-03-Clipping-SVG-elements-with-complex-shapes.md
+[fragment identifiers]: 2018-09-05-Using-an-SVG-stack-with-fragment-identifiers.md
+[Sass]: 2018-09-11-Getting-Sassy-with-the-board.md
+[BEM]: 2018-09-13-When-Sass-met-BEM.md
+[Graceful Degradation]: 2018-09-13-When-Sass-met-BEM.md
+[modenize]: 2018-10-01-Combining-modernizr-detects.md
+[`@mixin`g]: 2018-09-25-Sass-mixins-for-SVG-stacks.md
+[combining two or more of these detections]: 2018-10-01-Combining-modernizr-detects.md
+[how to make a tiling without SVG `<pattern>`s or `background-repeat`]: 2018-11-07-Tiling-with-Sass.md
 
 
 
