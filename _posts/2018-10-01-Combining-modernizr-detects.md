@@ -1,6 +1,29 @@
+This post is just one part of a larger story about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks][ch-1]
+2. [Making an SVG Stretch][ch-2]
+3. [Inverting SVG Elements][ch-3]
+4. [Rotating SVG Elements][ch-4]
+5. [Clipping SVG Elements][ch-5]
+6. [Improving Organization With Defs][ch-6]
+7. [Namespacing][ch-7]
+8. [Styling an SVG][ch-8]
+9. [Using SVG patterns][ch-9]
+10. [Clipping SVG Elements With Complex Shapes][ch-10]
+11. [Using an SVG stack With Fragment Identifiers][ch-11]
+12. [Getting Sassy With The Board][ch-12]
+13. [When Sass Met BEM][ch-13]
+14. [Browser Support For SVG Stacks][ch-14]
+15. [Sass Mixins For SVG Stacks][ch-15]
+16. [Combining Modernizr Detects][ch-16]
+17. [Tiling With Sass][ch-17]
+18. [Error Handling in Sass][ch-18]
+
 ## A more complex feature detection
 
-In the previous post we succesfully created a workouround for displaying the boards when SVGs are not supported as multiple `background-image`. Moving on to the rest of the issues, you'll notice there are somehow related:
+In the [previous post][ch-15] we succesfully created a workouround for displaying the boards when SVGs are not supported as multiple `background-image`. Moving on to the rest of the issues, you'll notice there are somehow related:
 
 - Safari and Safari iOS don't support **SVG Fragment Identifiers** at all.
 - Chrome versions 36 to 49 only support **SVG Fragment Identifiers** when used inside `<img>` elements.
@@ -172,9 +195,28 @@ Once more we add the following rule to each of the board types.
 }
 ```
 
-Not being able to use **SVG patters** means that we will have to replace every **SVG Fragment** with an actual **SVG file**. However, doing such a thing would result in having to write a massive amount of declarations just to have each image slightly modified. Of course, thanks to the power of [Sass], we don't have to, and in fact, it will give us the perfect opportunity to try some other cool stuff we can do with it. Be sure not to miss the next post!
+Not being able to use **SVG patters** means that we will have to replace every **SVG Fragment** with an actual **SVG file**. However, doing such a thing would result in having to write a massive amount of declarations just to have each image slightly modified. Of course, thanks to the power of [Sass], we don't have to, and in fact, it will give us the perfect opportunity to try some other cool stuff we can do with it. Be sure not to miss the [next post][ch-17]!
 
 
+
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
 [download]: https://modernizr.com/download
 [JPEG 2000]: https://caniuse.com/#search=jpeg
 [SVG Fragment Identifiers]: https://caniuse.com/#search=svg%20fragme
