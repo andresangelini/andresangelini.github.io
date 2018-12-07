@@ -252,3 +252,6 @@ Finally! Exactly what we were looking for. Next up, we will see [how to clip SVG
 [ch-16]: ../Combining-modernizr-detects
 [ch-17]: ../Tiling-with-Sass
 [ch-18]: ../Error-handling-in-Sass
+[Top chains]: https://cdn.rawgit.com/andresangelini/f3415703d9665bc6d2e0fcdefd90c252/raw/8a9d7f56730094d681762638c76db1df3ffdd538/topChains.svg
+[Bottom chains]: https://cdn.rawgit.com/andresangelini/96fc2fe2937f63997f972f203509bb28/raw/04eb599bf86ffce922d53071c8a10013743a3436/bottomChains.svg
+[chains pen]: https://codepen.io/andresangelini/pen/xPBapB/
