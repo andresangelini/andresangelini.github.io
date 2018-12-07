@@ -1,6 +1,29 @@
+This is the final chapter about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks][ch-1]
+2. [Making an SVG Stretch][ch-2]
+3. [Inverting SVG Elements][ch-3]
+4. [Rotating SVG Elements][ch-4]
+5. [Clipping SVG Elements][ch-5]
+6. [Improving Organization With Defs][ch-6]
+7. [Namespacing][ch-7]
+8. [Styling an SVG][ch-8]
+9. [Using SVG patterns][ch-9]
+10. [Clipping SVG Elements With Complex Shapes][ch-10]
+11. [Using an SVG stack With Fragment Identifiers][ch-11]
+12. [Getting Sassy With The Board][ch-12]
+13. [When Sass Met BEM][ch-13]
+14. [Browser Support For SVG Stacks][ch-14]
+15. [Sass Mixins For SVG Stacks][ch-15]
+16. [Combining Modernizr Detects][ch-16]
+17. [Tiling With Sass][ch-17]
+18. [Error Handling in Sass][ch-18]
+
 ### Using an SVG stack with Fragment Identifiers.
 
-Up until now we have been using an inline SVG for each of the pieces belonging to our [medieval board]. However, one of our main [objectives] is to use just one SVG file for all our graphic needs to avoid unnecessary HTTP requests. Fortunatly, this can be easily done as explained over at [CSS-Tricks]. We will be using this SVG as a `background-image` by separeting it into different layers. Each layer will consist of a `group` with an `id` assigned to it and will represent each of the individual pieces we have been building so far as individual SVGs. All of the layers will be hidden by default with `display: none` to only be displayed separatelly by targeting them with the `:target` selector and setting it to `display: inline` when they are used as a `background-image`.
+Up until now we have been using an inline SVG for each of the pieces belonging to our [medieval board][ch-10]. However, one of our main [objectives] is to use just one SVG file for all our graphic needs to avoid unnecessary HTTP requests. Fortunatly, this can be easily done as explained over at [CSS-Tricks]. We will be using this SVG as a `background-image` by separeting it into different layers. Each layer will consist of a `group` with an `id` assigned to it and will represent each of the individual pieces we have been building so far as individual SVGs. All of the layers will be hidden by default with `display: none` to only be displayed separatelly by targeting them with the `:target` selector and setting it to `display: inline` when they are used as a `background-image`.
 
 We will use the title plaque as an example to see how this works:
 
@@ -203,8 +226,27 @@ The rest of the layers follow the same general idea, each with their own particu
             <use xlink:href='#c-bottom-chain' x='100%' transform='translate(-26 0)'/>
 </g>
 ```
-With this we conclude on the SVG side. In the next post, we will see how to build both types of boards out of this single file with HTML and CSS.
+With this we conclude on the SVG side. In the [next post][ch-12], we will see how to build both types of boards out of this single file with HTML and CSS.
 
 
 
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
+[objectives]: ../Making-a-responsive-medieval-board-with-SVG-stacks/#the-objectives
 [CSS-Tricks]: https://css-tricks.com/svg-fragment-identifiers-work/
