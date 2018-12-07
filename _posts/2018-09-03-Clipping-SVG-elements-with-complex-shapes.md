@@ -1,6 +1,29 @@
+This is the final chapter about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks][ch-1]
+2. [Making an SVG Stretch][ch-2]
+3. [Inverting SVG Elements][ch-3]
+4. [Rotating SVG Elements][ch-4]
+5. [Clipping SVG Elements][ch-5]
+6. [Improving Organization With Defs][ch-6]
+7. [Namespacing][ch-7]
+8. [Styling an SVG][ch-8]
+9. [Using SVG patterns][ch-9]
+10. [Clipping SVG Elements With Complex Shapes][ch-10]
+11. [Using an SVG stack With Fragment Identifiers][ch-11]
+12. [Getting Sassy With The Board][ch-12]
+13. [When Sass Met BEM][ch-13]
+14. [Browser Support For SVG Stacks][ch-14]
+15. [Sass Mixins For SVG Stacks][ch-15]
+16. [Combining Modernizr Detects][ch-16]
+17. [Tiling With Sass][ch-17]
+18. [Error Handling in Sass][ch-18]
+
 ### Clipping SVG elements with complex shapes.
 
-As you have probably realized already, we can't just apply these patterns to simple rectangles because they would be visible through the board's frames and holes. We obviously need to clip them, but here's the catch: while the corners to be removed are of a fixed size, the parts that need to be visible must stretch. Remember also, that what we define by using clip-path is the visible area and not the other way around. However, we have no way of defining a clip-path that has these characteristics. Nonetheless, we can achieve the same result by, once again, taking a more indirect approach.
+As you have probably realized already if you have been following [so far][ch-9], we can't just apply these patterns to simple rectangles because they would be visible through the board's frames and holes. We obviously need to clip them, but here's the catch: while the corners to be removed are of a fixed size, the parts that need to be visible must stretch. Remember also, that what we define by using clip-path is the visible area and not the other way around. However, we have no way of defining a clip-path that has these characteristics. Nonetheless, we can achieve the same result by, once again, taking a more indirect approach.
 
 The parts we need to remove are the four corners, the area where the holes for the chains are, and a tiny bit of each side. Since we need to define the area we want displayed and this area needs to stretch while keeping a constant offset in pixels, we might as well create some `<rect>`s and make a composition with them to get an aproximation of the shape we are after.
 
@@ -171,12 +194,28 @@ Now they are ready to `use` anytime you like. The end result should look somethi
 <p data-height="331" data-theme-id="0" data-slug-hash="YOzYxL" data-default-tab="html,result" data-user="andresangelini" data-pen-title="stretching only some areas of an SVG" class="codepen">See the Pen <a href="https://codepen.io/andresangelini/pen/YOzYxL/">stretching only some areas of an SVG</a> by Andrés Angelini (<a href="https://codepen.io/andresangelini">@andresangelini</a>) on <a href="https://codepen.io">CodePen</a>.</p>
 <script async src="https://static.codepen.io/assets/embed/ei.js"></script>
 
-This is quite literally the last piece we needed to build the board. Although we haven't finished yet, the rest of our tasks should be somehow trivial.
+This is quite literally the last piece we needed to build the board. Although we haven't finished yet, the rest of our tasks should be somehow trivial. Be sure not to miss out the [next installment][ch-11].
 
 
 
-
-
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
 [top chains svg]: https://cdn.rawgit.com/andresangelini/f3415703d9665bc6d2e0fcdefd90c252/raw/8a9d7f56730094d681762638c76db1df3ffdd538/top chains svg.svg "Top chains"
 [bottom chains svg]: https://cdn.rawgit.com/andresangelini/96fc2fe2937f63997f972f203509bb28/raw/04eb599bf86ffce922d53071c8a10013743a3436/bottom chains svg.svg "Bottom chains"
 [chains pen]: https://codepen.io/andresangelini/pen/xPBapB/
