@@ -1,6 +1,29 @@
+This is the final chapter about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks][ch-1]
+2. [Making an SVG Stretch][ch-2]
+3. [Inverting SVG Elements][ch-3]
+4. [Rotating SVG Elements][ch-4]
+5. [Clipping SVG Elements][ch-5]
+6. [Improving Organization With Defs][ch-6]
+7. [Namespacing][ch-7]
+8. [Styling an SVG][ch-8]
+9. [Using SVG patterns][ch-9]
+10. [Clipping SVG Elements With Complex Shapes][ch-10]
+11. [Using an SVG stack With Fragment Identifiers][ch-11]
+12. [Getting Sassy With The Board][ch-12]
+13. [When Sass Met BEM][ch-13]
+14. [Browser Support For SVG Stacks][ch-14]
+15. [Sass Mixins For SVG Stacks][ch-15]
+16. [Combining Modernizr Detects][ch-16]
+17. [Tiling With Sass][ch-17]
+18. [Error Handling in Sass][ch-18]
+
 ### Assembling the board from an SVG with Sass
 
-Much like when we found ourselves with a really messy SVG structure and decided to organize it using `<defs>`, namespacing and some styling, we find ourselves once again in a little bit of a problem. As we have stablished in our design, we have a **bulletin board** and **sign-board**, which means there will be a myriad of variables, modifications, and edge cases that our CSS will have to handle. If your aren't careful, we can end up with a truly mantainance nightmare.
+Much like when we found ourselves with a really messy SVG structure and decided to organize it using `<defs>`, namespacing and some styling, we find ourselves once again in a little bit of a problem after having finished the SVG in the [previous post][ch-12]. As we have stablished in our design, we have a **bulletin board** and **sign-board**, which means there will be a myriad of variables, modifications, and edge cases that our CSS will have to handle. If your aren't careful, we can end up with a truly mantainance nightmare.
 
 This makes the perfect scenario for introducing [Sass] into our project. This tool is a CSS preprocessor which helps us write better style sheets by letting us use features like variables and functions that don't exits in vanilla CSS. One of those features is the hability to modularize our CSS into so called "partials" to make things easier to mantain. "Partials" are files where you can put different snippets of code which Sass will process and output into a single CSS file.
 
@@ -278,10 +301,30 @@ $sign-holes-position-right            : calc-holes-position-right($sign-corner-w
 $sign-holes-shadow-width              : calc-holes-shadow-width($sign-corner-width);
 ```
 
-Again, these variables should not change unless something in the SVG is modified. But if we do find the need to do any modification to our graphic, we will only have to change the functions arguments insntead of having to rewrite each calculation manually.
+Again, these variables should not change unless something in the SVG is modified. But if we do find the need to do any modification to our graphic, we will only have to change the functions arguments instead of having to rewrite each calculation manually.
 
-This should be the perfect moment to take a well deserved rest and let all we have seen and done so far sink in. In the next stage, we will finally jump into making the board itself.
+This should be the perfect moment to take a well deserved rest and let all we have seen and done so far sink in. In the [next stage][ch-13], we will finally jump into making the board itself.
 
+
+
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
 [Sass]: https://sass-lang.com/
 [Sass Basics]: https://sass-lang.com/guide
 [installing]: http://Sass-lang.com/install
