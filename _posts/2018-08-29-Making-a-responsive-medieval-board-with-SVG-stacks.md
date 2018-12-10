@@ -21,6 +21,8 @@ This is the first chapter in a series of posts telling the story of an alchemist
 17. [Tiling With Sass][ch-17]
 18. [Error Handling in Sass][ch-18]
 
+## Introduction
+
 If you think you know all about SVGs, think again. Besides letting us create amazing graphics that don't get blurred when resized, these little friends bring us a whole myriad of possibilities. But it's not until we go beyond making simple icon sets that we start to see all the wonders they have to offer us.
 
 If you know what I mean, then this post is probably not for you. But if you don't, then please join me in this thrilling adventure as we take a deep dive into wild territory. Pack your CSS pre-processor and open your favourite code editor. It's going to be a long ride!
