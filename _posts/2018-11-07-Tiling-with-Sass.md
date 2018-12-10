@@ -381,19 +381,19 @@ The second `@mixin` is the one for remaking the chains.
 
 ```scss
 @mixin chains-multiple-backgrounds($chain-link-height, $offset-y) {
-  background-image: tiling-images($path-to-chain-link, 20);
-  background-position: tiling-positions($line-x: 0px,
-                                        $line-y: calc(100% + #{$offset-y}),
-                                        $tile-dx: 0px,
+  background-image: tiling-images(url($path-to-chain-link), 20);
+  background-position: tiling-positions($tile-dx: 0px,
                                         $tile-dy: -$chain-link-height,
-                                        $tiles-per-lilne: 10),
-                       tiling-positions($line-x: 100%,
-                                        $line-y: calc(100% + #{$offset-y} - #{$chain-link-height}),
-                                        $tile-dx: 0px,
+                                        $line-dx: 0px,
+                                        $line-dy: calc(100% + #{$offset-y}),                                        
+                                        $tiles-per-line: 10),
+                       tiling-positions($tile-dx: 0px,
                                         $tile-dy: calc(#{-$chain-link-height} / 2),
+                                        $line-dx: 100%,
+                                        $line-dy: calc(100% + #{$offset-y} - #{$chain-link-height}),
                                         $a: 2,
                                         $b: -1,
-                                        $tiles-per-lilne: 10);
+                                        $tiles-per-line: 10);
   background-size: 200% $chain-link-height;
   background-repeat: no-repeat;
 }
