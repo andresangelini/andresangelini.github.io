@@ -1,4 +1,4 @@
-This is the final chapter about an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would otherwise suggest you to do it in the proper order to get the full context of the project.
+This is the final chapter in a series of posts telling the story of an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would strongly suggest following the proper order to get the full context of the project.
 
 ## Chapters
 
