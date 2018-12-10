@@ -112,4 +112,25 @@ Shared by both:
 - Top chains.
 - Bottom chains.
 
-Now that we have a deeper understanding of the board's structure, we can start tackling each problem individually, one at a time. But first, we should probably take a break, perhaps with a warm cup of coffee. Believe me, we'll probably need it. ;)
+Now that we have a deeper understanding of the board's structure, we can start tackling each problem individually, one at a time. We will begin by figuring out how to [make an SVG stretch][ch-2]. But first, we should probably take a break, perhaps with a warm cup of coffee. Believe me, we'll probably need it. ;)
+
+
+
+[ch-1]: ../Making-a-responsive-medieval-board-with-SVG-stacks
+[ch-2]: ../Making-an-SVG-stretch
+[ch-3]: ../Inverting-SVG-elements
+[ch-4]: ../Rotating-SVG-elements
+[ch-5]: ../Clipping-SVG-elements
+[ch-6]: ../Improving-organization-with-defs
+[ch-7]: ../Namespacing
+[ch-8]: ../Styling-an-SVG
+[ch-9]: ../Using-SVG-patterns
+[ch-10]: ../Clipping-SVG-elements-with-complex-shapes
+[ch-11]: ../Using-an-SVG-stack-with-fragment-identifiers
+[ch-12]: ../Getting-Sassy-with-the-board
+[ch-13]: ../When-Sass-met-BEM
+[ch-14]: ../Browser-support-for-SVG-stacks
+[ch-15]: ../Sass-mixins-for-SVG-stacks
+[ch-16]: ../Combining-modernizr-detects
+[ch-17]: ../Tiling-with-Sass
+[ch-18]: ../Error-handling-in-Sass
