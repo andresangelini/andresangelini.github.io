@@ -1,3 +1,26 @@
+This is the first chapter in a series of posts telling the story of an alchemist's personal quest for **Making a Responsive Medieval Board With SVG Stacks**. You may read the chapters in any order you want but I would strongly suggest following the proper order to get the full context of the project.
+
+## Chapters
+
+1. [Making a Responsive Medieval Board With SVG Stacks][ch-1]
+2. [Making an SVG Stretch][ch-2]
+3. [Inverting SVG Elements][ch-3]
+4. [Rotating SVG Elements][ch-4]
+5. [Clipping SVG Elements][ch-5]
+6. [Improving Organization With Defs][ch-6]
+7. [Namespacing][ch-7]
+8. [Styling an SVG][ch-8]
+9. [Using SVG patterns][ch-9]
+10. [Clipping SVG Elements With Complex Shapes][ch-10]
+11. [Using an SVG stack With Fragment Identifiers][ch-11]
+12. [Getting Sassy With The Board][ch-12]
+13. [When Sass Met BEM][ch-13]
+14. [Browser Support For SVG Stacks][ch-14]
+15. [Sass Mixins For SVG Stacks][ch-15]
+16. [Combining Modernizr Detects][ch-16]
+17. [Tiling With Sass][ch-17]
+18. [Error Handling in Sass][ch-18]
+
 If you think you know all about SVGs, think again. Besides letting us create amazing graphics that don't get blurred when resized, these little friends bring us a whole myriad of possibilities. But it's not until we go beyond making simple icon sets that we start to see all the wonders they have to offer us.
 
 If you know what I mean, then this post is probably not for you. But if you don't, then please join me in this thrilling adventure as we take a deep dive into wild territory. Pack your CSS pre-processor and open your favourite code editor. It's going to be a long ride!
