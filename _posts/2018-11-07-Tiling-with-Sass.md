@@ -380,26 +380,32 @@ Notice that this time I used a lot more images than in the previous examples; `1
 The second `@mixin` is the one for remaking the chains.
 
 ```scss
-@mixin chains-multiple-backgrounds($chain-link-height, $offset-y) {
+@mixin chains-multiple-backgrounds($link-height, $chains-y, $chains-width) {
+  @include center-horizontally($sign-holes-width);
   background-image: tiling-images(url($path-to-chain-link), 20);
-  background-position: tiling-positions($tile-dx: 0px,
-                                        $tile-dy: -$chain-link-height,
-                                        $line-dx: 0px,
-                                        $line-dy: calc(100% + #{$offset-y}),                                        
+  background-position: tiling-positions($tiling-x: 0px,
+                                        $tiling-y: $chains-y,
+                                        $tile-dx: 0px,
+                                        $tile-dy: $link-height,                                        
                                         $tiles-per-line: 10),
-                       tiling-positions($tile-dx: 0px,
-                                        $tile-dy: calc(#{-$chain-link-height} / 2),
-                                        $line-dx: 100%,
-                                        $line-dy: calc(100% + #{$offset-y} - #{$chain-link-height}),
+                       tiling-positions($tiling-x: 100%,
+                                        $tiling-y: calc(#{strip-calc($chains-y)} + #{$link-height}),
+                                        $tile-dx: 0px,
+                                        $tile-dy: calc(#{$link-height} / 2),
                                         $a: 2,
                                         $b: -1,
                                         $tiles-per-line: 10);
-  background-size: 200% $chain-link-height;
+  background-size: tiling-sizes(200% $chain-link-height);
   background-repeat: no-repeat;
+  height: 100%;
 }
 ```
 
-We will leave `$chain-link-height` and `$offset-y` as required parameters in case we make any modification to the graphics in the future.
+The parameters of this `@mixin` are as fallow:
+
+- `$link-height`: the height of the **link**.
+- `$chains-y`: the `y` coordinate of the **chains**.
+- `$chains-width`: the width of the **image** containing the chains graphic (equal to the width of the are where the holes in the board are, that is, `$bulletin-holes-width` or `$sign-holes-width`).
 
 With the `@mixin`s completed and ready to roll we can finally fix the issue of alpha transparency not being rendered properly in Safari 11.
 
@@ -407,7 +413,13 @@ For **bulletin** type board (inside the `&--type-bulletin` selector):
 
 ```scss
 @at-root .jpeg2000.peerconnection & {
-  & div:nth-child(12) {@include chains-multiple-backgrounds($chain-link-height, 3px);}     
+  background-image: none; // Just make sure no background is displayed.
+
+  div {
+    position: absolute;
+  }
+
+  & div:nth-child(12) {@include chains-multiple-backgrounds(-$chain-link-height, calc(#{strip-calc($sign-top-chains-height)} - 63px), $bulletin-holes-width);}
   & div:nth-child(1) {@include planks-multiple-backgrounds($bulletin-corner-width);}
 }
 ```
@@ -416,13 +428,14 @@ For the **sign** one (inside the `&--type-sign` selector):
 
 ```scss
 @at-root .jpeg2000.peerconnection & { // Change back to .jpeg2000 after testing.
+  background-image: none; // Just make sure no background is displayed.
 
   div {
-    background: none; // Just make sure no background is displayed.
+    position: absolute;
   }
 
-  & div:nth-child(13) {@include chains-multiple-backgrounds($chain-link-height, 3px);}
-  & div:nth-child(12) {@include chains-multiple-backgrounds($y: -3px, $offset-y: $chain-link-height);}
+  & div:nth-child(13) {@include chains-multiple-backgrounds(-$chain-link-height, calc(#{strip-calc($sign-top-chains-height)} - 63px), $sign-holes-width);}
+  & div:nth-child(12) {@include chains-multiple-backgrounds($chain-link-height, calc(#{strip-calc($sign-bottom-chains-div-position-top)} + 39px), $sign-holes-width);}
   & div:nth-child(11) {@include corners($path-to-sign-corners, $sign-board-height, $sign-board-position-top);}
   & div:nth-child(10) {@include horizontal-sides($path-to-sign-horizontal-sides, $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
   & div:nth-child(9) {@include vertical-sides($path-to-vertical-sides, $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
