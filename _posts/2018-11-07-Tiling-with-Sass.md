@@ -341,71 +341,74 @@ Just perfect! All we need to do now is wrap all this up with some `@mixin`s and 
 The first `@mixin` we will create is the one for the planks.
 
 ```scss
-@mixin planks-multiple-backgrounds($corner-width) {
+@mixin planks-multiple-backgrounds($corner-width, $board-height) {
   background-clip: padding-box;
   background-color: $color-planks-diffuse;
-  background-image: tiling-images($path-to-shades, 80),
-                    tiling-images($path-to-grooves, 100);
+  background-image: tiling-images(url($path-to-shades), 80),
+                    tiling-images(url($path-to-grooves), 100);
   background-position: tiling-positions($tiling-x: 12%,
                                         $tiling-y: 0px,
                                         $tile-dx: 14%,
                                         $tile-dy: 0px,
                                         $line-dy: $shade-height,
-                                        $tiles-per-lilne: 4, $lines: 10),
+                                        $tiles-per-line: 4, $lines: 10),
                        tiling-positions($tiling-x: 88%,
                                         $tiling-y: 0px,
                                         $tile-dx: -14%,
                                         $tile-dy: 0px,
                                         $line-dy: $shade-height,
-                                        $tiles-per-lilne: 4, $lines: 10),
+                                        $tiles-per-line: 4, $lines: 10),
                        tiling-positions($tiling-x: 0px,
                                         $tiling-y: 0px,
                                         $tile-dx: $grooves-width,
                                         $tile-dy: 0px,
                                         $line-dy: $grooves-height,
-                                        $tiles-per-lilne: 10,
+                                        $tiles-per-line: 10,
                                         $lines: 10);
-  background-size: background-sizes(200%, $shade-height, 80),
-                   background-sizes($grooves-width, $grooves-height, 100);
+  background-size: tiling-sizes(200% 765px, 80),
+                   tiling-sizes($grooves-width $grooves-height, 100);
   background-repeat: no-repeat;
   box-sizing: border-box;
   clip-path: planks-clip($corner-width);
+  height: $board-height;
+  width: 100%;
 }
 ```
 
-The only required argument is the `$corner-width` since this is what will be used to clip the `background-images` according to the type of board it is with the help of the `planks-cliip()` function we made earlier.
+The only required arguments are the `$corner-width` and `$corner.height` since the first is what will be used to clip the `background-images` according to the type of board it is with the help of the `planks-cliip()` function we made earlier and the second one is needed to set the height of the planks. 
 
 Notice that this time I used a lot more images than in the previous examples; `10` lines of `4` images for the shades on each side, which amounts to a total of `80` images, and `10` lines of `10` images each for the grooves. As you might have realized, we could have created a more specific function for the shades, but I preferred not to to avoid adding too many layers of abstraction and thus making it more difficult to understand how it all works.
 
 The second `@mixin` is the one for remaking the chains.
 
 ```scss
-@mixin chains-multiple-backgrounds($link-height, $chains-y, $chains-width) {
-  @include center-horizontally($sign-holes-width);
+@mixin chains-multiple-backgrounds($chains-width,
+                                   $chains-height,
+                                   $profile-links-y,
+                                   $profile-link-dy,
+                                   $front-links-y,
+                                   $front-link-dy) {
+  @include center-horizontally($chains-width);
   background-image: tiling-images(url($path-to-chain-link), 20);
   background-position: tiling-positions($tiling-x: 0px,
-                                        $tiling-y: $chains-y,
+                                        $tiling-y: $profile-links-y,
                                         $tile-dx: 0px,
-                                        $tile-dy: $link-height,                                        
+                                        $tile-dy: $profile-link-dy,
                                         $tiles-per-line: 10),
                        tiling-positions($tiling-x: 100%,
-                                        $tiling-y: calc(#{strip-calc($chains-y)} + #{$link-height}),
+                                        $tiling-y: $front-links-y,
                                         $tile-dx: 0px,
-                                        $tile-dy: calc(#{$link-height} / 2),
+                                        $tile-dy: $front-link-dy,
                                         $a: 2,
                                         $b: -1,
                                         $tiles-per-line: 10);
-  background-size: tiling-sizes(200% $chain-link-height);
+  background-size: 200% $chains-link-height;
   background-repeat: no-repeat;
-  height: 100%;
+  height: $chains-height;
 }
 ```
 
-The parameters of this `@mixin` are as fallow:
-
-- `$link-height`: the height of the **link**.
-- `$chains-y`: the `y` coordinate of the **chains**.
-- `$chains-width`: the width of the **image** containing the chains graphic (equal to the width of the are where the holes in the board are, that is, `$bulletin-holes-width` or `$sign-holes-width`).
+Notice how we have named the four last parameters to make reference to the ones used in both `tiling-positions()`.
 
 With the `@mixin`s completed and ready to roll we can finally fix the issue of alpha transparency not being rendered properly in Safari 11.
 
