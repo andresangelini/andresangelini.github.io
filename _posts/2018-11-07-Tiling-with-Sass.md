@@ -375,7 +375,7 @@ The first `@mixin` we will create is the one for the planks.
 }
 ```
 
-The only required arguments are the `$corner-width` and `$corner.height` since the first is what will be used to clip the `background-images` according to the type of board it is with the help of the `planks-cliip()` function we made earlier and the second one is needed to set the height of the planks. 
+The only required arguments are the `$corner-width` and `$corner-height` since the first is what will be used to clip the `background-images` according to the type of board it is with the help of the `planks-clip()` function we made earlier and the second one is needed to set the height of the planks.
 
 Notice that this time I used a lot more images than in the previous examples; `10` lines of `4` images for the shades on each side, which amounts to a total of `80` images, and `10` lines of `10` images each for the grooves. As you might have realized, we could have created a more specific function for the shades, but I preferred not to to avoid adding too many layers of abstraction and thus making it more difficult to understand how it all works.
 
@@ -422,23 +422,60 @@ For **bulletin** type board (inside the `&--type-bulletin` selector):
     position: absolute;
   }
 
-  & div:nth-child(12) {@include chains-multiple-backgrounds(-$chain-link-height, calc(#{strip-calc($sign-top-chains-height)} - 63px), $bulletin-holes-width);}
-  & div:nth-child(1) {@include planks-multiple-backgrounds($bulletin-corner-width);}
+  & div:nth-child(13) {@include plaque($path-to-plaque);}
+  & div:nth-child(12) {
+    @include chains-multiple-backgrounds($chains-width: $bulletin-holes-width,
+                                         $chains-height: $bulletin-chains-height,
+                                         $profile-links-y: calc(100% + #{$chains-top-offset} - #{$chains-bottom-offset}),
+                                         $profile-link-dy: -$chains-link-height,
+                                         $front-links-y: calc(100% - #{$chains-link-height} + #{$chains-top-offset} - #{$chains-bottom-offset}),
+                                         $front-link-dy: calc(-#{$chains-link-height} / 2));
+    box-sizing: border-box;
+  }
+  & div:nth-child(11) {@include corners($path-to-bulletin-corners, $bulletin-board-height, 0);}
+  & div:nth-child(10) {@include horizontal-sides($path-to-bulletin-horizontal-sides, $bulletin-horizontal-width, $bulletin-board-height, 0);}
+  & div:nth-child(9) {@include vertical-sides($path-to-vertical-sides, $bulletin-vertical-height, $bulletin-board-height, $bulletin-side-position-left, 1);}
+  & div:nth-child(8) {@include holes($path-to-bulletin-holes, $bulletin-holes-width, $bulletin-board-height, 0);}
+  & div:nth-child(7) {@include horizontal-sides($path-to-horizontal-sides-depth, $bulletin-horizontal-width, $bulletin-board-height, 0);}
+  & div:nth-child(6) {@include corners($path-to-bulletin-corners-depth, $bulletin-board-height, 0);}
+  & div:nth-child(5) {@include horizontal-sides($path-to-horizontal-sides-shadow, $bulletin-horizontal-width, $bulletin-board-height, 0);}
+  & div:nth-child(4) {@include vertical-sides($path-to-vertical-sides-shadow, $bulletin-vertical-height, $bulletin-board-height, $bulletin-side-position-left, 1);}
+  & div:nth-child(3) {@include corners($path-to-bulletin-corners-shadow, $bulletin-board-height, 0);}
+  & div:nth-child(2) {@include holes($path-to-bulletin-holes-shadow, $bulletin-holes-shadow-width, $bulletin-board-height, 0);}
+  & div:nth-child(1) {
+    @include planks-multiple-backgrounds($bulletin-corner-width, $bulletin-board-height);
+    bottom: 0;
+  }
 }
 ```
 
 For the **sign** one (inside the `&--type-sign` selector):
 
 ```scss
-@at-root .jpeg2000.peerconnection & { // Change back to .jpeg2000 after testing.
+@at-root .jpeg2000.peerconnection & {
   background-image: none; // Just make sure no background is displayed.
 
   div {
     position: absolute;
   }
 
-  & div:nth-child(13) {@include chains-multiple-backgrounds(-$chain-link-height, calc(#{strip-calc($sign-top-chains-height)} - 63px), $sign-holes-width);}
-  & div:nth-child(12) {@include chains-multiple-backgrounds($chain-link-height, calc(#{strip-calc($sign-bottom-chains-div-position-top)} + 39px), $sign-holes-width);}
+  & div:nth-child(13) {
+    @include chains-multiple-backgrounds($chains-width: $sign-holes-width,
+                                         $chains-height: $sign-top-chains-height,
+                                         $profile-links-y: calc(100% + #{$chains-top-offset} - #{$chains-bottom-offset}),
+                                         $profile-link-dy: -$chains-link-height,
+                                         $front-links-y: calc(100% - #{$chains-link-height} + #{$chains-top-offset} - #{$chains-bottom-offset}),
+                                         $front-link-dy: calc(-#{$chains-link-height} / 2));
+  }
+  & div:nth-child(12) {
+    @include chains-multiple-backgrounds($chains-width: $sign-holes-width,
+                                         $chains-height: $sign-bottom-chains-height,
+                                         $profile-links-y: -$chains-top-offset,
+                                         $profile-link-dy: $chains-link-height,
+                                         $front-links-y: calc(#{$chains-link-height} - #{$chains-top-offset}),
+                                         $front-link-dy: calc(#{$chains-link-height} / 2));
+    bottom: 0;
+  }
   & div:nth-child(11) {@include corners($path-to-sign-corners, $sign-board-height, $sign-board-position-top);}
   & div:nth-child(10) {@include horizontal-sides($path-to-sign-horizontal-sides, $sign-horizontal-width, $sign-board-height, $sign-board-position-top);}
   & div:nth-child(9) {@include vertical-sides($path-to-vertical-sides, $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
@@ -449,8 +486,11 @@ For the **sign** one (inside the `&--type-sign` selector):
   & div:nth-child(4) {@include vertical-sides($path-to-vertical-sides-shadow, $sign-vertical-height, $sign-board-height, $sign-side-position-left, 2);}
   & div:nth-child(3) {@include corners($path-to-sign-corners-shadow, $sign-board-height, $sign-board-position-top);}
   & div:nth-child(2) {@include holes($path-to-sign-holes-shadow, $sign-holes-shadow-width, $sign-board-height, $sign-board-position-top);}
-  & div:nth-child(1) {@include planks-multiple-backgrounds($sign-corner-width);}
-}
+  & div:nth-child(1) {
+    @include planks-multiple-backgrounds($sign-corner-width, calc((#{$sign-side-position-left} * 2) + #{$sign-vertical-height}));
+    top: calc(#{$sign-board-position-top});
+  }
+  }
 ```
 
 With this last step we have covered all the issues worth fixing. All we need to do is to display a message prompting the user to update their browser or device if they don't support one of the required features. Since we might be doing this more than one time, a `@mixim` will come really in handy.
