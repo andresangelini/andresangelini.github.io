@@ -95,12 +95,12 @@ The result is a function that does everything for us by simply changing its argu
 
   @return polygon(0 calc-side-position-right($corner-width),                                               /* BL corner 3 */
                   $side-curve-left 50%,                                                                    /* L side center */
-                  0 $corner-width,                                                                         /* TL corner 1 */
+                  0 calc(#{$corner-width} - 7px),                                                          /* TL corner 1 */
                   calc-corner-left($corner-width) calc-corner-left($corner-width),                         /* TL corner 2 */
                   calc-side-position-left($corner-width) 0,                                                /* TL corner 3 */
                   calc-holes-position-left($corner-width) $side-curve-left,                                /* Top holes TL */
-                  calc-holes-position-left($corner-width) calc-corner-left($corner-width),                 /* Top holes BL */
-                  calc-holes-position-right($corner-width) calc-corner-left($corner-width),                /* Top holes BR */
+                  calc-holes-position-left($corner-width) 30px,                                            /* Top holes BL */
+                  calc-holes-position-right($corner-width) 30px,                                           /* Top holes BR */
                   calc-holes-position-right($corner-width) $side-curve-left,                               /* Top holes TR */
                   calc-side-position-right($corner-width) 0,                                               /* TR corner 1 */
                   calc-corner-right($corner-width) calc-corner-left($corner-width),                        /* TR corner 2 */
