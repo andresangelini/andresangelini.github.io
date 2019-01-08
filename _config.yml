@@ -13,14 +13,15 @@ title                    : "The Alchemist's Journal"
 title_separator          : "-"
 name                     : "Andrés Angelini"
 description              : "An artist's journey into the world of coding."
-url                      : "https://thealchemistjournal.com" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+# url                      : "https://thealchemistjournal.com" # the base hostname & protocol for your site e.g. "https://mmistakes.github.io"
+url                      : ""
 baseurl                  : "" # the subpath of your site, e.g. "/blog"
 repository               : "andresangelini/andresangelini.github.io" # GitHub username/repo-name e.g. "mmistakes/minimal-mistakes"
 teaser                   : # path of fallback teaser image, e.g. "/assets/images/500x300.png"
 # breadcrumbs            : false # true, false (default)
 words_per_minute         : 200
 comments:
-  provider               : # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2" "custom"
+  provider               : "facebook" # false (default), "disqus", "discourse", "facebook", "google-plus", "staticman", "staticman_v2" "custom"
   disqus:
     shortname            : # https://help.disqus.com/customer/portal/articles/466208-what-s-a-shortname-
   discourse:
@@ -29,7 +30,7 @@ comments:
     # https://developers.facebook.com/docs/plugins/comments
     appid                :
     num_posts            : # 5 (default)
-    colorscheme          : # "light" (default), "dark"
+    colorscheme          : "dark" # "light" (default), "dark"
 staticman:
   allowedFields          : # ['name', 'email', 'url', 'message']
   branch                 : # "master"
@@ -248,6 +249,6 @@ defaults:
       layout: single
       author_profile: true
       read_time: true
-      comments: # true
+      comments: true # true
       share: true
       related: true
