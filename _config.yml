@@ -34,7 +34,7 @@ comments:
 staticman:
   allowedFields          : # ['name', 'email', 'url', 'message']
   branch                 : # "master"
-  endpoint               : https://dev.staticman.net/v3/entry/github/andresangelini/andresangelini.github.io/master
+  endpoint               : https://dev.staticman.net/v3/entry/github/andresangelini/andresangelini.github.io
   commitMessage          : # "New comment."
   filename               : # comment-{@timestamp}
   format                 : # "yml"
